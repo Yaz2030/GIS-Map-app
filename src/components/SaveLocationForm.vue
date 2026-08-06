@@ -152,8 +152,8 @@ export default {
   width: min(420px, 92vw);
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
   padding: 22px 24px 26px;
@@ -174,10 +174,10 @@ export default {
 .save-form-modal__body textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--color-background);
-  color: var(--color-text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
@@ -185,14 +185,14 @@ export default {
 
 .save-form-modal__body textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(18, 58, 99, 0.15);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(30, 27, 75, 0.15);
 }
 
 .save-form-count {
   float: inline-end;
   font-weight: 400;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   font-size: 11.5px;
 }
 
@@ -209,19 +209,19 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .save-form-icon:hover {
-  background: var(--color-background);
+  background: var(--bg-primary);
 }
 
 .save-form-icon.active {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
   color: #fff;
 }
 

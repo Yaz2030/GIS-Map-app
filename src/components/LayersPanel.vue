@@ -90,7 +90,7 @@ export default {
 .layers-section h3 {
   font-size: 13.5px;
   margin: 0 0 8px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   font-weight: 700;
 }
 
@@ -100,18 +100,18 @@ export default {
   align-items: center;
   gap: 10px;
   padding: 9px 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 13.5px;
   margin-bottom: 6px;
 }
 
 .layer-option.active {
-  border-color: var(--color-primary);
-  background: var(--color-background);
+  border-color: var(--accent-primary);
+  background: var(--bg-primary);
 }
 
 .layer-option span:nth-child(2) {
@@ -139,6 +139,6 @@ export default {
 .overlay-row input {
   width: 16px;
   height: 16px;
-  accent-color: var(--color-primary);
+  accent-color: var(--accent-primary);
 }
 </style>

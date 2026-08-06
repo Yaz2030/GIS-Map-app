@@ -66,6 +66,7 @@ import AppIcon from "./AppIcon.vue";
 import { t } from "../i18n";
 import { savedLocationsState } from "../store/savedLocations";
 import { getCategoryIcon } from "../utils/placeCategory";
+import { confirm } from "../composables/useConfirm";
 
 export default {
   name: "SavedLocationsPanel",
@@ -101,8 +102,13 @@ export default {
     t,
     getCategoryIcon,
 
-    handleDelete(item) {
-      if (window.confirm(t("saved.deleteConfirm"))) {
+    async handleDelete(item) {
+      const confirmed = await confirm({
+        title: t("saved.delete"),
+        message: t("saved.deleteConfirm"),
+        isDangerous: true,
+      });
+      if (confirmed) {
         this.$emit("delete-location", item);
       }
     },
@@ -139,12 +145,12 @@ export default {
   border-radius: var(--radius-sm);
   cursor: pointer;
   text-align: start;
-  color: var(--color-text);
+  color: var(--text-primary);
   transition: background-color 0.15s ease;
 }
 
 .saved-item__main:hover {
-  background: var(--color-background);
+  background: var(--bg-primary);
 }
 
 /* عمود ثابت العرض للأيقونة حتى لا يزاحمه النص عند التفاف الأسطر */
@@ -154,8 +160,8 @@ export default {
   height: 34px;
   margin-top: 1px;
   border-radius: var(--radius-sm);
-  background: var(--color-background);
-  color: var(--color-primary);
+  background: var(--bg-primary);
+  color: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,14 +192,14 @@ export default {
 .saved-item__address {
   overflow-wrap: break-word;
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .saved-item__description {
   overflow-wrap: break-word;
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;

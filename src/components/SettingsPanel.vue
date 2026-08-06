@@ -125,13 +125,13 @@ export default {
 .settings-section h3 {
   font-size: 13.5px;
   margin: 0 0 8px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   font-weight: 700;
 }
 
 .settings-hint {
   font-size: 12.5px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   margin: 2px 0;
   line-height: 1.5;
 }
@@ -145,7 +145,7 @@ export default {
 .segmented {
   display: flex;
   gap: 6px;
-  background: var(--color-background);
+  background: var(--bg-primary);
   padding: 4px;
   border-radius: var(--radius-sm);
 }
@@ -160,13 +160,13 @@ export default {
   border: none;
   border-radius: calc(var(--radius-sm) - 2px);
   background: transparent;
-  color: var(--color-text);
+  color: var(--text-primary);
   font-size: 13px;
   cursor: pointer;
 }
 
 .segmented__btn.active {
-  background: var(--color-primary);
+  background: var(--accent-primary);
   color: #fff;
 }
 
@@ -182,7 +182,7 @@ export default {
 }
 
 .appearance-option:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
@@ -223,7 +223,7 @@ export default {
 .switch__track {
   position: absolute;
   inset: 0;
-  background: var(--color-border);
+  background: var(--border);
   border-radius: 999px;
   transition: background-color 0.15s ease;
 }
@@ -240,7 +240,7 @@ export default {
 }
 
 .switch input:checked + .switch__track {
-  background: var(--color-primary);
+  background: var(--accent-primary);
 }
 
 .switch input:checked + .switch__track .switch__thumb {

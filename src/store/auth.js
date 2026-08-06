@@ -59,6 +59,12 @@ export function mockRegister({ name, email }) {
   return authState.user;
 }
 
+export function updateUserName(name) {
+  if (!authState.user) return;
+  authState.user.name = name;
+  persist();
+}
+
 export function logout() {
   authState.user = null;
   persist();

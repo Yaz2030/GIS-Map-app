@@ -90,8 +90,8 @@ export default {
   /* يتبع اتجاه القراءة: يمين الخريطة في العربية (RTL)، ويسارها في الإنجليزية (LTR) */
   inset-inline-start: 16px;
   z-index: 1000;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
   padding: 6px;
@@ -110,31 +110,31 @@ export default {
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-text);
+  color: var(--text-primary);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .sidebar-btn:hover {
-  background: var(--color-background);
+  background: var(--bg-primary);
 }
 
 .sidebar-btn.active {
-  background: var(--color-primary);
+  background: var(--accent-primary);
   color: #fff;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: var(--color-border);
+  background: var(--border);
   margin: 2px 4px;
 }
 
 .sidebar-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: sidebar-spin 0.7s linear infinite;
 }
@@ -150,8 +150,8 @@ export default {
   top: 50%;
   inset-inline-start: calc(100% + 10px);
   transform: translateY(-50%);
-  background: var(--color-text);
-  color: var(--color-surface);
+  background: var(--text-primary);
+  color: var(--bg-surface);
   font-size: 12px;
   padding: 5px 9px;
   border-radius: 6px;

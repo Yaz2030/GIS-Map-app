@@ -43,12 +43,12 @@ export default {
   align-items: center;
   gap: 8px;
   min-width: 220px;
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   padding: 10px 16px;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-panel);
-  border-inline-start: 4px solid var(--color-primary);
+  border-inline-start: 4px solid var(--accent-primary);
   font-size: 13.5px;
 }
 

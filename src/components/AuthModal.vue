@@ -237,8 +237,8 @@ export default {
   width: min(420px, 92vw);
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
   padding: 22px 24px 26px;
@@ -257,13 +257,13 @@ export default {
 }
 
 .auth-modal__note {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   margin: 0 0 16px;
 }
 
@@ -275,7 +275,7 @@ export default {
 .auth-modal__link {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--accent-primary);
   font-size: 12.5px;
   cursor: pointer;
   padding: 0;
@@ -287,7 +287,7 @@ export default {
 
 .auth-modal__hint {
   font-size: 13px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0 0 14px;
 }
@@ -298,7 +298,7 @@ export default {
   text-align: center;
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--accent-primary);
   font-size: 13.5px;
   margin-top: 14px;
   cursor: pointer;

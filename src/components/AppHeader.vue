@@ -38,6 +38,10 @@
                 <span class="account-menu__name">{{ authState.user.name }}</span>
                 <span class="account-menu__email">{{ authState.user.email }}</span>
               </div>
+              <button type="button" class="list-item" @click="handleAccountSettingsClick">
+                <span class="list-item__icon"><AppIcon name="settings" :size="18" /></span>
+                <span class="list-item__name">{{ t("account.menuItem") }}</span>
+              </button>
               <button type="button" class="list-item danger" @click="handleLogout">
                 <span class="list-item__icon"><AppIcon name="logout" :size="18" /></span>
                 <span class="list-item__name">{{ t("header.logout") }}</span>
@@ -125,6 +129,11 @@ export default {
       this.$emit("change-menu", "settings");
     },
 
+    handleAccountSettingsClick() {
+      this.accountMenuOpen = false;
+      this.$emit("change-menu", "accountSettings");
+    },
+
     handleLoginClick() {
       this.accountMenuOpen = false;
       this.$emit("open-auth", "login");
@@ -153,7 +162,7 @@ export default {
 .app-header {
   flex: 0 0 var(--header-height);
   height: var(--header-height);
-  background: var(--color-primary);
+  background: var(--accent-gradient);
   color: #fff;
   display: flex;
   align-items: center;
@@ -216,12 +225,12 @@ export default {
   top: calc(100% + 8px);
   inset-inline-start: 0;
   width: 230px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
   padding: 6px;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .account-menu {
@@ -240,7 +249,7 @@ export default {
 .account-menu__info {
   padding: 8px 10px 10px;
   margin-bottom: 4px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -249,12 +258,12 @@ export default {
 .account-menu__name {
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .account-menu__email {
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

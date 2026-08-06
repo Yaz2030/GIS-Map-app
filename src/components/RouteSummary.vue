@@ -161,13 +161,13 @@ export default {
   inset-inline-end: 16px;
   width: min(340px, calc(100vw - 24px));
   max-height: calc(100% - 32px);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
   padding: 14px 16px;
   z-index: 1300;
-  color: var(--color-text);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -199,12 +199,12 @@ export default {
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--accent-primary);
 }
 
 .route-preview {
   flex-shrink: 0;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border);
   padding-top: 10px;
   margin-bottom: 10px;
   display: flex;
@@ -224,7 +224,7 @@ export default {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 
 .route-preview__instruction {
@@ -234,12 +234,12 @@ export default {
 
 .route-preview__after {
   font-size: 12.5px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 
 .route-preview__then-text {
   font-size: 13px;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .route-toggle {
@@ -254,7 +254,7 @@ export default {
   list-style: none;
   margin: 0 0 12px;
   padding: 10px 0 0;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border);
 }
 
 .route-direction {
@@ -265,7 +265,7 @@ export default {
 }
 
 .route-direction + .route-direction {
-  border-top: 1px dashed var(--color-border);
+  border-top: 1px dashed var(--border);
 }
 
 .route-direction__icon {
@@ -273,8 +273,8 @@ export default {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--color-background);
-  color: var(--color-primary);
+  background: var(--bg-primary);
+  color: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -290,17 +290,17 @@ export default {
 
 .route-direction__text {
   font-size: 13.5px;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .route-direction__road {
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 
 .route-direction__distance {
   font-size: 11.5px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 
 .route-clear-btn {
@@ -310,7 +310,7 @@ export default {
 .route-attribution {
   flex-shrink: 0;
   font-size: 10.5px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
   margin: 8px 0 0;
   text-align: center;
 }

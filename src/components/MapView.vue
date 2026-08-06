@@ -44,6 +44,15 @@
       <SettingsPanel v-if="currentMenu === 'settings'" key="settings" @close="$emit('change-menu', null)" />
     </Transition>
 
+    <Transition name="panel-pop">
+      <AccountSettingsPanel
+        v-if="currentMenu === 'accountSettings'"
+        key="accountSettings"
+        @close="$emit('change-menu', null)"
+        @account-deleted="handleAccountDeleted"
+      />
+    </Transition>
+
     <RouteSummary :route="routeData" :loading="routeLoading" :error="routeError" @clear="clearRoute" />
 
     <SaveLocationForm
@@ -68,6 +77,7 @@ import SearchPanel from "./SearchPanel.vue";
 import LayersPanel from "./LayersPanel.vue";
 import SavedLocationsPanel from "./SavedLocationsPanel.vue";
 import SettingsPanel from "./SettingsPanel.vue";
+import AccountSettingsPanel from "./AccountSettingsPanel.vue";
 import RouteSummary from "./RouteSummary.vue";
 import SaveLocationForm from "./SaveLocationForm.vue";
 
@@ -103,6 +113,7 @@ export default {
     LayersPanel,
     SavedLocationsPanel,
     SettingsPanel,
+    AccountSettingsPanel,
     RouteSummary,
     SaveLocationForm,
   },
@@ -114,7 +125,7 @@ export default {
     },
   },
 
-  emits: ["change-menu", "require-auth"],
+  emits: ["change-menu", "require-auth", "account-deleted"],
 
   data() {
     return {
@@ -488,6 +499,13 @@ export default {
       this.map.setView([item.lat, item.lng], Math.max(this.map.getZoom(), FOCUS_ZOOM));
       const marker = this.savedMarkers.get(item.id);
       if (marker) marker.openPopup();
+    },
+
+    // ---------------- account settings ----------------
+
+    handleAccountDeleted() {
+      this.$emit("change-menu", null);
+      this.$emit("account-deleted");
     },
 
     // ---------------- save / delete ----------------
