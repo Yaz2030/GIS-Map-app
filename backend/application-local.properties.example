@@ -1,0 +1,6 @@
+# Copy this file to application-local.properties (gitignored) and fill in real values.
+# Loaded automatically via spring.config.import in src/main/resources/application.properties.
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-gmail-app-password
+# Generate with: openssl rand -base64 48
+jwt.secret=your-long-random-base64-secret-at-least-32-bytes
