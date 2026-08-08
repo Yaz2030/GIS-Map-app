@@ -102,8 +102,8 @@ export default {
   },
 
   watch: {
-    // كل مسار جديد يبدأ مطويًا (compact) دائمًا، حتى لو كان المستخدم قد وسّع
-    // مسارًا سابقًا
+    // Every new route always starts collapsed (compact), even if the user
+    // had expanded a previous route
     route(newVal, oldVal) {
       if (newVal !== oldVal) this.expanded = false;
     },
@@ -156,8 +156,8 @@ export default {
 .route-summary {
   position: absolute;
   top: 16px;
-  /* الجهة المقابلة للشريط الجانبي واللوحات العائمة (inset-inline-start) حتى لا
-     يتداخل معها؛ يمين في LTR، يسار في RTL */
+  /* The side opposite the sidebar and floating panels (inset-inline-start) so
+     it doesn't overlap them; right in LTR, left in RTL */
   inset-inline-end: 16px;
   width: min(340px, calc(100vw - 24px));
   max-height: calc(100% - 32px);

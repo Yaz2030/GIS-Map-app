@@ -1,7 +1,7 @@
 // =============================================================
-// عميل axios مركزي لكل الطلبات الموجهة لخادمنا (Spring Boot لاحقًا).
-// يضيف رأس Accept-Language تلقائيًا اعتمادًا على تفضيل اللغة
-// الحالي المخزّن في settingsState (راجع ../store/settings.js).
+// Central axios client for all requests to our server (Spring Boot).
+// Automatically adds the Accept-Language header based on the current
+// language preference stored in settingsState (see ../store/settings.js).
 // =============================================================
 
 import axios from "axios";
@@ -10,14 +10,14 @@ import { getToken, logout } from "../store/auth";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
-// المسارات التي لا يجب إرفاق التوكن معها (لا يوجد توكن بعد قبل الدخول)
+// Paths that should not have the token attached (no token exists before login)
 const AUTH_EXEMPT_PATHS = ["/api/users/login", "/api/users/register"];
 
 const httpClient = axios.create({
   baseURL: BASE_URL,
 });
 
-// الباك إند يتوقع 'ar' أو 'en' بالضبط، بدون لواحق مثل ar-SA أو en-US
+// The backend expects exactly 'ar' or 'en', without suffixes like ar-SA or en-US
 function normalizeLanguage(language) {
   const short = String(language || "").toLowerCase().split(/[-_]/)[0];
   return short === "en" ? "en" : "ar";

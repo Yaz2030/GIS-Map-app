@@ -27,9 +27,9 @@ export default {
 <style scoped>
 .toast-container {
   position: fixed;
-  /* يبدأ دائمًا أسفل الهيدر كاملًا بدل التراكب معه، ويتبع تلقائيًا أي تغيير
-     مستقبلي بـ --header-height (مثلاً بين الموبايل والديسكتوب) دون الحاجة
-     لتكرار القيمة هنا */
+  /* Always starts fully below the header instead of overlapping it, and
+     automatically follows any future change to --header-height (e.g. between
+     mobile and desktop) without needing to duplicate the value here */
   top: calc(var(--header-height) + 16px);
   left: 50%;
   transform: translateX(-50%);

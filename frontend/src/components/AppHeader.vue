@@ -214,8 +214,9 @@ export default {
   transform: translateX(-50%);
 }
 
-/* شعار نصي عريض (98x25) لا رمز مربع — يُقاس بالارتفاع ليحافظ على تناسبه
-   الأصلي بدل تربيعه، خصوصًا الآن وهو العنصر الوحيد الممثّل للعلامة بالهيدر */
+/* Wide text logo (98x25), not a square mark — sized by height to preserve its
+   original aspect ratio instead of squaring it, especially now that it's the
+   only brand element in the header */
 .app-header__logo {
   height: 28px;
   width: auto;
@@ -251,8 +252,9 @@ export default {
 }
 
 .account-menu {
-  /* يرتكز على الحافة الخارجية لزر الحساب ويتمدد نحو الوسط، فيبقى داخل حدود
-     الشاشة دائمًا سواء كان الزر عند أقصى اليمين (LTR) أو أقصى اليسار (RTL) */
+  /* Anchored to the account button's outer edge and expands toward the
+     center, so it always stays within screen bounds whether the button is at
+     the far right (LTR) or far left (RTL) */
   inset-inline-start: auto;
   inset-inline-end: 0;
   width: 180px;

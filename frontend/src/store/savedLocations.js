@@ -2,16 +2,16 @@ import { reactive } from "vue";
 import httpClient from "../services/httpClient";
 
 // =============================================================
-// مواقع محفوظة حقيقية مرتبطة بالمستخدم صاحب التوكن، عبر Spring Boot
-// (GET/POST/PUT/DELETE /api/locations). لا يوجد أي تخزين محلي هنا —
-// كل قراءة/كتابة تمر عبر httpClient، والباك اند هو مصدر الحقيقة الوحيد.
+// Saved locations tied to the token's user, backed by Spring Boot
+// (GET/POST/PUT/DELETE /api/locations). No local storage here —
+// every read/write goes through httpClient, and the backend is the source of truth.
 //
-// نموذج الباك اند لا يحتوي على address/originalName/createdAt، لذا لا نحتفظ
-// بها هنا. category حقل اختياري (nullable) بالباك اند بتسع قيم مسموحة فقط
-// (religious/education/health/food/fuel/shop/office/residential/generic)؛
-// المواقع القديمة قبل إضافته تُرجعه null، فنطبّعه محليًا إلى "generic".
-// (latitude/longitude من الباك اند تُطابق lat/lng هنا لتفادي إعادة تسمية
-// عشرات المراجع بـ MapView.vue).
+// The backend model has no address/originalName/createdAt, so we don't keep
+// them here. category is an optional (nullable) backend field with nine
+// allowed values (religious/education/health/food/fuel/shop/office/residential/generic);
+// locations saved before this field existed return null, so we normalize that to "generic" locally.
+// (latitude/longitude from the backend map to lat/lng here to avoid renaming
+// dozens of references in MapView.vue).
 // =============================================================
 
 export const savedLocationsState = reactive({
@@ -31,7 +31,7 @@ function mapFromApi(loc) {
   };
 }
 
-// مقارنة ثابتة باستخدام إحداثيات مقربة لمنع تكرار نفس الموقع تقريبًا
+// Stable comparison using rounded coordinates to prevent near-duplicate locations
 export function coordKey(lat, lng) {
   return `${Number(lat).toFixed(5)}_${Number(lng).toFixed(5)}`;
 }
@@ -76,8 +76,9 @@ export async function saveLocation({ name, lat, lng, description, category }) {
   return { success: true, duplicate: false, item };
 }
 
-// تعديل موقع محفوظ حالي (الاسم/الوصف/التصنيف فقط) دون تغيير إحداثياته — يُعاد
-// إرسال lat/lng الحاليين دائمًا لأن الباك اند يستبدل الحقول بالكامل عند PUT
+// Updates an existing saved location (name/description/category only) without
+// changing its coordinates — current lat/lng are always resent since the
+// backend replaces all fields on PUT
 export async function updateLocation(id, patch) {
   const item = savedLocationsState.items.find((entry) => entry.id === id);
   if (!item) return false;

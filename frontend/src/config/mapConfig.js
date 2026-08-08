@@ -1,12 +1,10 @@
-// مركز السعودية تقريبًا (لا موقع مستخدم ولا مكتب شركة) — يظهر بها العرض
-// الافتراضي عند فتح التطبيق وعند الضغط على "إعادة الضبط" فقط، بغض النظر عن
-// أي إحداثيات جغرافية فعلية للمستخدم (زر "موقعي الحالي" منفصل تمامًا وغير
-// متأثر بهذه القيمة)
+// Approximate center of Saudi Arabia — default view on app load and "Reset" only,
+// not tied to the user's actual location (the "My Location" button is separate).
 export const SAUDI_ARABIA_CENTER = { lat: 23.8859, lng: 45.0792 };
-// زووم يعرض السعودية كاملة تقريبًا بمكوّن خريطة عادي (وليس زووم مدينة/مكتب)
+// Zoom level that shows most of Saudi Arabia at a country-wide view.
 export const DEFAULT_ZOOM = 5;
 export const FOCUS_ZOOM = 15;
-// أقل زووم مسموح به على كل الطبقات الأساسية — يمنع تكرار العالم أفقيًا جنب
-// بعضه عند التصغير الزائد (يحدث حين تصير كل نسخة من العالم أضيق من حاوية
-// الخريطة). 3 يبقي العالم كاملاً ظاهرًا بلا تكرار حتى على شاشات عريضة جدًا.
+// Minimum zoom for all base layers — prevents the world map from repeating
+// horizontally when zoomed out too far (each world copy becomes narrower than
+// the container). 3 keeps the world visible without repeats on wide screens.
 export const MIN_ZOOM = 3;

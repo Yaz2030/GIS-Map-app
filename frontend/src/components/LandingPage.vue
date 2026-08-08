@@ -22,8 +22,8 @@
 <script>
 import { t } from "../i18n";
 
-// أسماء تقنيات/منتجات لا تُترجم (متطابقة بالعربي والإنجليزي)، فتُعرض مباشرة
-// دون المرور بنظام الترجمة الذي يدعم قيمًا نصية فقط لكل مفتاح
+// Tech/product names aren't translated (identical in Arabic and English), so
+// they're shown directly, bypassing the translation system, which only supports plain text values per key
 const TECH_STACK = ["Vue.js", "Leaflet.js", "Spring Boot", "MongoDB"];
 
 export default {

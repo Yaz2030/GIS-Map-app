@@ -87,7 +87,7 @@ export default {
 .map-sidebar {
   position: absolute;
   top: 16px;
-  /* يتبع اتجاه القراءة: يمين الخريطة في العربية (RTL)، ويسارها في الإنجليزية (LTR) */
+  /* Follows reading direction: right side of the map in Arabic (RTL), left side in English (LTR) */
   inset-inline-start: 16px;
   z-index: 1000;
   background: var(--bg-surface);

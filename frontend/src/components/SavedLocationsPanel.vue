@@ -152,7 +152,7 @@ export default {
   background: var(--bg-primary);
 }
 
-/* عمود ثابت العرض للأيقونة حتى لا يزاحمه النص عند التفاف الأسطر */
+/* Fixed-width icon column so text doesn't crowd it when lines wrap */
 .saved-item__icon {
   flex-shrink: 0;
   width: 34px;
@@ -166,8 +166,8 @@ export default {
   justify-content: center;
 }
 
-/* عمود النص: تكديس رأسي حقيقي (flex column) بدل الاعتماد على تدفق inline
-   الذي كان يسبب تداخل الاسم/العنوان/الوصف مع النصوص الطويلة */
+/* Text column: real vertical stacking (flex column) instead of relying on
+   inline flow, which caused the name/title/description to overlap with long text */
 .saved-item__text {
   min-width: 0;
   flex: 1;
@@ -200,7 +200,7 @@ export default {
   overflow: hidden;
 }
 
-/* عمود ثابت لا ينكمش لصالح النص، ولا يتأثر بطول عمود النص المجاور */
+/* Fixed column that doesn't shrink for text, and isn't affected by the adjacent text column's length */
 .saved-item__actions {
   flex-shrink: 0;
   align-self: flex-start;

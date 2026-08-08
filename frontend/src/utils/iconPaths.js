@@ -1,6 +1,6 @@
-// مصدر واحد لكل الأيقونات (خطوط بسيطة متسقة الأسلوب، بدون إيموجي وبدون صور).
-// تُستخدم هذه المسارات من AppIcon.vue (داخل مكونات Vue) ومن iconHtml.js
-// (لبناء أيقونات بوب-أب Leaflet وعلامات الخريطة كنص HTML خام).
+// Single source for all icons (simple, consistent line style, no emoji or images).
+// These paths are used by AppIcon.vue (inside Vue components) and iconHtml.js
+// (to build Leaflet popup icons and map markers as raw HTML).
 export const ICON_PATHS = {
   menu: '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
 

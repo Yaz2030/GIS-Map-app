@@ -28,10 +28,10 @@ watch(
   }
 );
 
-// عند تغيير مظهر التطبيق (فاتح/داكن) تتبدّل الطبقة الأساسية تلقائيًا للطبقة
-// المناسبة لها. أي اختيار يدوي لاحق من لوحة الطبقات يبقى ساريًا حتى تغيير
-// المظهر التالي فقط. العلاقة أحادية الاتجاه (المظهر -> الطبقة) ولا شيء يعيد
-// كتابة المظهر، لذلك لا توجد حلقة تحديث.
+// When the app theme changes (light/dark), the base layer automatically
+// switches to the matching layer. Any later manual choice from the layers
+// panel stays in effect until the next theme change. The relationship is
+// one-directional (theme -> layer) and nothing writes back to the theme, so there's no update loop.
 watch(
   () => settingsState.theme,
   (theme) => {

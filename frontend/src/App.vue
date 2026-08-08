@@ -52,8 +52,8 @@ export default {
       showAuthModal: false,
       authModalMode: "login",
       authModalNote: "",
-      // إخفاء لهذه الجلسة فقط (وليس localStorage)؛ يعود true تلقائيًا
-      // بعد أي إعادة تحميل طالما المستخدم ما زال زائرًا غير مسجّل دخول
+      // Hidden for this session only (not localStorage); reverts to true
+      // automatically after any reload as long as the user is still a guest, not logged in
       landingDismissed: false,
     };
   },
@@ -74,7 +74,7 @@ export default {
   },
 
   methods: {
-    // اسم يطابق currentMenu الحالي يغلقه (تبديل)، أي اسم آخر يفتحه ويغلق البقية
+    // A name matching the current currentMenu closes it (toggle); any other name opens it and closes the rest
     setMenu(name) {
       if (name === "savedLocations" && !isLoggedIn()) {
         this.handleRequireAuth();

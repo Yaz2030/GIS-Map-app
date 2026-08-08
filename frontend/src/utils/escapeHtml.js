@@ -1,4 +1,4 @@
-// يمنع حقن HTML عند إدراج نصوص خارجية (مثل نتائج Nominatim) داخل popup عبر innerHTML
+// Prevents HTML injection when inserting external text (e.g. Nominatim results) into a popup via innerHTML
 const ESCAPE_MAP = {
   "&": "&amp;",
   "<": "&lt;",

@@ -1,6 +1,7 @@
-// يحوّل خطوة توجيه من OSRM (maneuver.type/modifier/bearing/exit) إلى نص إرشادي
-// مقروء بالعربية أو الإنجليزية، دون الاعتماد على نظام الترجمة العام (t()) لأن
-// النصوص هنا مركّبة ديناميكيًا (اتجاه البوصلة، اسم الشارع، رقم مخرج الدوار...).
+// Converts an OSRM routing step (maneuver.type/modifier/bearing/exit) into a
+// readable instruction in Arabic or English, without relying on the general
+// translation system (t()) since these strings are built dynamically
+// (compass direction, street name, roundabout exit number...).
 
 const COMPASS_AR = [
   "الشمال",
@@ -95,7 +96,7 @@ export function describeStep(step, language = "ar") {
   }
 }
 
-// يختار أيقونة مناسبة (من نظام الأيقونات الحالي AppIcon/iconPaths) لكل نوع مناورة
+// Picks a matching icon (from the current AppIcon/iconPaths icon system) for each maneuver type
 export function getStepIcon(step) {
   if (step.type === "depart") return "navigation";
   if (step.type === "arrive") return "check-circle";

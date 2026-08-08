@@ -1,7 +1,7 @@
 // =============================================================
-// حالة موحّدة لصندوق التأكيد (بديل window.confirm) + دالة confirm()
-// التي تُستدعى من أي مكوّن وتُرجع Promise<boolean> — نفس أسلوب
-// pushToast في ../store/toast.js (حالة singleton واحدة على مستوى التطبيق).
+// Shared state for the confirm dialog (a window.confirm replacement) + a
+// confirm() function callable from any component that returns Promise<boolean>
+// — same pattern as pushToast in ../store/toast.js (one app-wide singleton state).
 // =============================================================
 
 import { reactive } from "vue";
@@ -19,7 +19,7 @@ export const confirmState = reactive({
 let activeResolve = null;
 
 export function confirm({ title = "", message = "", confirmText = "", cancelText = "", isDangerous = false } = {}) {
-  // إذا كان هناك تأكيد معلّق بالفعل، نلغيه قبل فتح واحد جديد
+  // If a confirmation is already pending, cancel it before opening a new one
   if (activeResolve) resolveConfirm(false);
 
   confirmState.visible = true;

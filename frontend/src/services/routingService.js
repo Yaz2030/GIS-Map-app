@@ -1,7 +1,7 @@
 // =============================================================
-// خدمة توجيه معزولة تعتمد على خادم OSRM التجريبي العام (بدون مفتاح API).
-// مناسبة لمشروع تدريبي فقط. عند ربط Spring Boot لاحقًا يُفترض
-// استبدال BASE_URL بوسيط (proxy) عبر الخادم الخاص بنا.
+// Standalone routing service using the public OSRM demo server (no API key).
+// Suitable for a training project only. When wiring up Spring Boot later,
+// BASE_URL should be replaced with a proxy through our own server.
 // =============================================================
 
 const BASE_URL = import.meta.env.VITE_OSRM_API || "https://router.project-osrm.org/route/v1/driving";
@@ -33,7 +33,7 @@ export async function fetchRoute(from, to) {
   );
 
   return {
-    // Leaflet يتوقع [lat, lng] بينما GeoJSON يعيد [lng, lat]
+    // Leaflet expects [lat, lng] while GeoJSON returns [lng, lat]
     latlngs: route.geometry.coordinates.map(([lng, lat]) => [lat, lng]),
     distanceMeters: route.distance,
     durationSeconds: route.duration,

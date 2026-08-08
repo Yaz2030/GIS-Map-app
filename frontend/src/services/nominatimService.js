@@ -1,15 +1,14 @@
 // =============================================================
-// خدمة معزولة للاتصال بـ Nominatim: عكس الترميز الجغرافي (تفاصيل عنوان نقطة
-// على الخريطة، مثل بوب-أب الموقع) + دالة بحث نصي بسيطة تُستخدم فقط كمصدر
-// احتياطي من ../services/placesService.js عندما يرجّع Foursquare نتائج
-// فاضية/قليلة جدًا (مفيد خصوصًا للمدن/المناطق الجغرافية الواسعة التي لا
-// يغطيها Foursquare أصلاً، المخصص للأماكن التجارية). Foursquare عبر الباك
-// اند يبقى المصدر الأساسي للبحث لأن بيانات Nominatim محدودة، خصوصًا للفنادق
-// والمحلات.
+// Standalone service for talking to Nominatim: reverse geocoding (address
+// details for a map point, e.g. the location popup) + a simple text search
+// used only as a fallback from ../services/placesService.js when Foursquare
+// returns empty/too few results (useful for cities/large geographic areas
+// Foursquare doesn't cover, since it targets businesses). Foursquare via the
+// backend stays the primary search source since Nominatim's data is limited,
+// especially for hotels and shops.
 //
-// ملاحظة: لا يمكن ضبط رأس User-Agent من fetch داخل المتصفح لأنه
-// من الرؤوس المحجوزة (forbidden header) والمتصفحات تتجاهله أو
-// تمنعه، لذلك لا نحاول تعيينه هنا.
+// Note: the User-Agent header can't be set from fetch in the browser since
+// it's a forbidden header — browsers ignore or block it, so we don't try to set it here.
 // =============================================================
 
 import { getCategory } from "../utils/placeCategory";
@@ -26,8 +25,8 @@ export async function reverseGeocode(lat, lng, language = "ar") {
   return res.json();
 }
 
-// بحث بسيط بطلب واحد (بلا إعادة محاولات أو ترتيب نتائج) — يكفي دور الاحتياط
-// الذي تستخدمه به placesService.js
+// Simple single-request search (no retries or result ranking) — enough for
+// the fallback role placesService.js uses it for
 export async function searchPlaces(query, language = "ar", limit = 8) {
   const trimmed = (query || "").trim();
   if (!trimmed) return [];
@@ -49,10 +48,10 @@ export async function searchPlaces(query, language = "ar", limit = 8) {
   return res.json();
 }
 
-// عنوان كامل من حقول addressdetails الخاصة بـ Nominatim: الحي، الشارع،
-// المدينة، الدولة (اسم المكان نفسه يُعرض بشكل منفصل كعنوان بارز بالبوب-أب،
-// فلا يُكرَّر هنا). ملاحظة: neighbourhood/suburb ليست مضمونة التوفر دائمًا
-// من الـ API — نعتمد على ما هو متاح فعليًا فقط دون افتراض قيم ثابتة
+// Full address built from Nominatim's addressdetails fields: neighbourhood,
+// street, city, country (the place name itself is shown separately as the
+// popup's headline, so it's not repeated here). Note: neighbourhood/suburb
+// aren't always present in the API response — we only use what's actually available
 export function buildFullAddress(item) {
   if (!item) return "";
   const addr = item.address || {};

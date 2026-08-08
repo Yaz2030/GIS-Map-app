@@ -156,8 +156,8 @@ export default {
       this.forgotError = "";
     },
 
-    // تدفق استعادة كلمة المرور هنا واجهي بحت ومعزول عمدًا (بدون رمز إعادة
-    // تعيين حقيقي أو بريد فعلي) حتى يسهل استبداله لاحقًا بخدمة Spring Boot
+    // The forgot-password flow here is intentionally UI-only and isolated (no
+    // real reset token or actual email) so it's easy to replace later with a Spring Boot service
     submitForgot() {
       const email = this.forgotEmail.trim();
 

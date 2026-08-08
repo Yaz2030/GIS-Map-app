@@ -179,8 +179,8 @@ import httpClient from "../services/httpClient";
 import { pushToast } from "../store/toast";
 import { authState, updateUserName, logout } from "../store/auth";
 
-// نفس شرط قوة كلمة المرور المطبّق بالباك اند (StrongPasswordValidator):
-// 8 أحرف على الأقل، حرف كبير، حرف صغير، ورمز خاص من @ # $ % ! و *
+// Same password strength rule enforced by the backend (StrongPasswordValidator):
+// at least 8 characters, one uppercase, one lowercase, and a special character from @ # $ % ! *
 const STRONG_PASSWORD_RE = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%!&*]).{8,}$/;
 
 export default {

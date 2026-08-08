@@ -221,11 +221,11 @@ export default {
   },
 
   mounted() {
-    // minZoom على مستوى الخريطة نفسها يمنع المستخدم من التصغير لدرجة يتكرر
-    // فيها العالم أفقيًا جنب بعضه (يحدث لأن Leaflet لا يمنع التصغير افتراضيًا
-    // حتى تصير كل نسخة من العالم أضيق من حاوية الخريطة). نضيفه أيضًا على كل
-    // طبقة أساسية على حدة (osm/dark/satellite) حتى لا تحاول أي طبقة تحميل
-    // بلاطات أبعد من هذا الحد حتى لو تغيّرت قيمة الخريطة العامة لاحقًا
+    // minZoom on the map itself prevents the user from zooming out far enough
+    // for the world to repeat horizontally (Leaflet doesn't prevent this by
+    // default until each world copy becomes narrower than the map container).
+    // Also added to each base layer individually (osm/dark/satellite) so no
+    // layer tries to load tiles past this limit even if the map's general value changes later
     this.map = L.map("map", { minZoom: MIN_ZOOM }).setView(
       [SAUDI_ARABIA_CENTER.lat, SAUDI_ARABIA_CENTER.lng],
       DEFAULT_ZOOM
@@ -246,11 +246,11 @@ export default {
           minZoom: MIN_ZOOM,
         }
       ),
-      // طبقة الأقمار الصناعية = تجميعة (imagery + شوارع + تسميات/حدود) بـ
-      // layerGroup واحدة حتى تُفعَّل/تُطفأ كلها تلقائيًا مع اختيار/تبديل هذه
-      // الطبقة الأساسية نفسها، دون أي حالة أو خيار قائمة منفصل لها.
-      // الترتيب (zIndex تصاعديًا): الصور بالأسفل، شبكة الشوارع فوقها،
-      // وحدود/أسماء الأحياء والمدن بالأعلى
+      // Satellite layer = a bundle (imagery + streets + labels/boundaries) in
+      // one layerGroup so they all toggle together automatically when this
+      // base layer is selected/switched, with no separate state or menu option.
+      // Order (ascending zIndex): imagery at the bottom, street grid above it,
+      // neighborhood/city boundaries and names on top
       satellite: L.layerGroup([
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -290,11 +290,11 @@ export default {
     this.map.on("click", this.handleMapClick);
     this.map.on("popupopen", this.handlePopupOpen);
 
-    // silent + center: false: يحدد موقع المستخدم وتُعرض علامته على الخريطة
-    // فقط، دون أي تغيير لعرض/تكبير الخريطة — يبقى العرض الافتراضي عند فتح
-    // التطبيق ثابتًا على السعودية (SAUDI_ARABIA_CENTER/DEFAULT_ZOOM) بغض
-    // النظر عن نجاح تحديد الموقع. زر "موقعي الحالي" (handleMyLocation) هو
-    // الوحيد الذي يمرّر center: true فيقوم بالـ zoom-in والتوسّط الفعلي.
+    // silent + center: false: locates the user and shows their marker on the
+    // map only, without changing the map's view/zoom — the default view on
+    // app load stays fixed on Saudi Arabia (SAUDI_ARABIA_CENTER/DEFAULT_ZOOM)
+    // regardless of whether geolocation succeeds. The "My Location" button
+    // (handleMyLocation) is the only one that passes center: true and actually zooms in and centers.
     if (this.settingsState.autoLocation) {
       this.requestGeolocation({ silent: true, center: false });
     }
@@ -491,8 +491,8 @@ export default {
       }
     },
 
-    // مركزية: الدالة الوحيدة التي تُنهي أي تحديد مؤقت (بوب-أب + علامة مؤقتة)
-    // يجب استدعاؤها عند التنقل لأي جزء آخر من التطبيق بدل تكرار نفس السطور
+    // Central: the single function that clears any temporary selection
+    // (popup + temporary marker). Call this when navigating elsewhere instead of repeating these lines
     clearTemporarySelection() {
       this.selectionToken += 1;
       this.map.closePopup();

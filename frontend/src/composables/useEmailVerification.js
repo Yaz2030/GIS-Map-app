@@ -1,8 +1,8 @@
 // =============================================================
-// يتحقق من رابط تفعيل البريد (/verify-email?token=...) في الخلفية
-// دون أي واجهة مرئية منفصلة — الخريطة تبقى ظاهرة دائمًا وفورًا. عند
-// اكتمال الطلب (نجاحًا أو فشلًا) يُنظَّف الرابط فورًا عبر
-// history.replaceState حتى لا يعيد المحاولة عند تحديث الصفحة.
+// Verifies the email confirmation link (/verify-email?token=...) in the
+// background with no separate visible UI — the map stays visible at all
+// times. Once the request completes (success or failure), the URL is
+// cleaned up immediately via history.replaceState so it doesn't retry on page refresh.
 // =============================================================
 
 import httpClient from "../services/httpClient";

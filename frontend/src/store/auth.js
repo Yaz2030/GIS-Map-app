@@ -2,10 +2,10 @@ import { reactive } from "vue";
 import httpClient from "../services/httpClient";
 
 // =============================================================
-// حالة مصادقة حقيقية متصلة بالباك اند (Spring Boot) عبر JWT.
-// التوكن يُخزَّن كنص خام في localStorage (رد /api/users/login هو
-// التوكن نفسه، وليس JSON فيه حقل token)، وبيانات المستخدم تُجلب
-// بعد ذلك من GET /api/users/me وتُخزَّن بشكل منفصل.
+// Real auth state backed by the backend (Spring Boot) via JWT.
+// The token is stored as raw text in localStorage (the /api/users/login
+// response is the token itself, not JSON with a token field), and user data
+// is then fetched from GET /api/users/me and stored separately.
 // =============================================================
 
 const STORAGE_KEY = "mapapp.auth.user";
@@ -68,8 +68,8 @@ export function isLoggedIn() {
   return !!getToken() && !!authState.user;
 }
 
-// يرمي خطأ axios كما هو عند فشل الدخول (بيانات خاطئة، بريد غير موثّق..)
-// حتى تتعامل معه الواجهة (AuthModal) وتعرض الرسالة المناسبة
+// Rethrows the axios error as-is when login fails (wrong credentials,
+// unverified email, etc.) so the UI (AuthModal) can handle it and show the right message
 export async function login({ email, password }) {
   const { data: token } = await httpClient.post("/api/users/login", { email, password });
   setToken(token);
@@ -88,8 +88,8 @@ export async function login({ email, password }) {
   return authState.user;
 }
 
-// لا يسجّل الدخول تلقائيًا: الباك اند لا يرجع توكن عند التسجيل،
-// فقط ينشئ الحساب ويرسل بريد تفعيل
+// Doesn't log in automatically: the backend returns no token on registration,
+// it only creates the account and sends a verification email
 export async function register({ name, email, password }) {
   const { data } = await httpClient.post("/api/users/register", { name, email, password });
   return data;

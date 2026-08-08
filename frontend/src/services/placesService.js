@@ -1,25 +1,25 @@
 // =============================================================
-// بحث الأماكن: Foursquare (عبر الباك اند GET /api/places/search) أولاً لأنه
-// أدق للأماكن التجارية (فنادق، محلات، مطاعم...)، مع رجوع تلقائي لـ Nominatim
-// كمصدر احتياطي عندما ترجع نتائج Foursquare فاضية أو قليلة جدًا — خصوصًا
-// للمدن والمناطق الجغرافية الواسعة التي لا يغطيها Foursquare أصلاً (مخصص
-// للأماكن التجارية لا الكيانات الجغرافية). عكس الترميز الجغرافي وتفاصيل
-// العنوان بالبوب-أب يبقيان على Nominatim بلا تغيير (./nominatimService.js).
+// Place search: Foursquare (via backend GET /api/places/search) first since
+// it's more accurate for businesses (hotels, shops, restaurants...), with
+// automatic fallback to Nominatim when Foursquare returns empty or too few
+// results — especially for cities and large geographic areas that Foursquare
+// doesn't cover (it targets businesses, not geographic entities). Reverse
+// geocoding and popup address details stay on Nominatim (./nominatimService.js).
 // =============================================================
 
 import httpClient from "./httpClient";
 import { searchPlaces as searchNominatim, normalizePlace as normalizeNominatimResult } from "./nominatimService";
 import { currentLanguage } from "../i18n";
 
-// أقل عدد نتائج من Foursquare يُعتبر "كافيًا" لتفادي استدعاء Nominatim
-// الإضافي غير الضروري (تبطيء بلا داعٍ لو كانت نتائج Foursquare أصلاً كافية)
+// Minimum number of Foursquare results considered "enough" to skip the
+// extra Nominatim call (avoids unnecessary latency when Foursquare already suffices)
 const MIN_RESULTS_BEFORE_FALLBACK = 2;
 
-// يحوّل PlaceSearchResult من الباك اند (name/address/latitude/longitude) إلى
-// نفس الشكل الذي تتوقعه واجهة نتائج البحث والخريطة (lat/lng/name/address/category).
-// لا يوجد تصنيف (category) من هذا المصدر، فتُترك "generic" — يعرضها
-// getCategoryIcon تلقائيًا بأيقونة الدبوس العامة، بنفس آلية الرجوع الافتراضية
-// المستخدمة أصلاً بباقي التطبيق عند غياب التصنيف
+// Converts a backend PlaceSearchResult (name/address/latitude/longitude) into
+// the shape expected by the search results and map UI (lat/lng/name/address/category).
+// This source has no category, so it's left as "generic" — getCategoryIcon
+// automatically shows the generic pin icon, the same fallback used elsewhere
+// in the app when a category is missing
 export function normalizePlaceResult(item) {
   return {
     lat: item.latitude,
@@ -49,9 +49,10 @@ function coordKey(lat, lng) {
   return `${Number(lat).toFixed(4)}_${Number(lng).toFixed(4)}`;
 }
 
-// يضيف نتائج Nominatim دون تكرار ما هو موجود أصلاً من Foursquare لنفس
-// الموقع تقريبًا (المصدران يستخدمان دقة/نقطة مرجعية مختلفة لنفس المكان
-// أحيانًا، لذا التقريب هنا أخف من مقارنة الإحداثيات داخل مصدر واحد)
+// Adds Nominatim results without duplicating what's already present from
+// Foursquare at roughly the same location (the two sources sometimes use
+// different precision/reference points for the same place, so this rounding
+// is looser than coordinate comparisons within a single source)
 function mergeUnique(primary, extra) {
   const seen = new Set(primary.map((item) => coordKey(item.lat, item.lng)));
   return [...primary, ...extra.filter((item) => !seen.has(coordKey(item.lat, item.lng)))];
@@ -76,8 +77,8 @@ export async function searchPlaces(query, { lat, lon } = {}) {
     const fallbackResults = await searchFallback(query);
     return mergeUnique(foursquareResults, fallbackResults);
   } catch (err) {
-    if (foursquareFailed) throw err; // كلا المصدرين فشلا: نترك الخطأ يظهر بالواجهة
+    if (foursquareFailed) throw err; // Both sources failed: let the error surface to the UI
     console.error("Nominatim fallback search failed:", err);
-    return foursquareResults; // Foursquare نجح (بنتائج قليلة فقط)، نعرضها كما هي
+    return foursquareResults; // Foursquare succeeded (just with few results), show as-is
   }
 }

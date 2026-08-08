@@ -1,4 +1,4 @@
-// مركز نصوص الواجهة بلغتين (عربي/إنجليزي) حتى لا تتفرق الشروط داخل المكونات
+// Central UI text store in two languages (Arabic/English) so conditionals don't scatter across components
 export const translations = {
   ar: {
     app: {

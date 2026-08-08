@@ -1,7 +1,7 @@
 import { settingsState } from "../store/settings";
 import { translate } from "./translations";
 
-// دالة ترجمة واحدة تُستخدم في كل المكونات، تعتمد على لغة الإعدادات الحالية
+// Single translation function used across all components, based on the current settings language
 export function t(path) {
   return translate(settingsState.language, path);
 }

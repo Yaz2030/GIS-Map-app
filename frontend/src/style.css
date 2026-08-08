@@ -1,7 +1,7 @@
 /* =========================================================
-   نظام التصميم (Design System)
-   كل الألوان والمقاسات تمر عبر متغيرات CSS حتى يعمل الوضع
-   الداكن والفاتح بنفس الأنماط دون تكرار ملفات القوالب.
+   Design System
+   All colors and sizes go through CSS variables so light and
+   dark mode share the same styles without duplicating templates.
    ========================================================= */
 
 :root,
@@ -11,10 +11,10 @@
   --accent-primary: #1e1b4b;
   --accent-secondary: #8b3a9e;
   --accent-gradient: linear-gradient(135deg, #2d6ca3 0%, #8b3a9e 100%);
-  /* نسخة أهدأ من accent-gradient مخصصة لهيدر التطبيق فقط: نفس درجات
-     اللون ممزوجة بنسبة خفيفة من bg-primary حتى لا يبدو الهيدر "قطعة
-     منفصلة" حادة عن خلفية الصفحة الفاتحة، مع الحفاظ على تباين كافٍ
-     لنص أبيض فوقه (~4.5:1 فأعلى على كلا اللونين) */
+  /* A calmer version of accent-gradient for the app header only: same hues
+     blended with a touch of bg-primary so the header doesn't look like a
+     harsh "separate piece" against the light page background, while keeping
+     enough contrast for white text on top (~4.5:1+ on both colors) */
   --header-gradient: linear-gradient(135deg, #417aac 0%, #964da7 100%);
   --text-primary: #1a1a2e;
   --text-secondary: #6b6b85;
@@ -34,10 +34,10 @@
   --accent-primary: #6c7fd8;
   --accent-secondary: #b565c7;
   --accent-gradient: linear-gradient(135deg, #4a8fd1 0%, #b565c7 100%);
-  /* accent-gradient يصطدم بصريًا مع خلفية الخريطة الداكنة؛ نستخدم بدلاً منه
-     درجة سطح واحدة (bg-surface) أفتح قليلاً من bg-primary — نفس اللون
-     المستخدم أصلاً بكل لوحات/بطاقات الوضع الداكن، فيبقى الهيدر متمايزًا عن
-     الخريطة دون تعارض لوني مع بقية الثيم */
+  /* accent-gradient visually clashes with the dark map background; we use a
+     single surface tone (bg-surface) instead, slightly lighter than
+     bg-primary — the same color already used across dark-mode panels/cards,
+     so the header stays distinct from the map without clashing with the theme */
   --header-gradient: var(--bg-surface);
   --text-primary: #f0f0f5;
   --text-secondary: #9494b0;
@@ -205,7 +205,7 @@ input {
 .floating-panel {
   position: absolute;
   top: 16px;
-  /* بجانب الشريط الجانبي العائم، ويتبع نفس اتجاه القراءة (يمين في RTL، يسار في LTR) */
+  /* Next to the floating sidebar, follows reading direction (right in RTL, left in LTR) */
   inset-inline-start: 76px;
   width: 340px;
   max-width: calc(100vw - 24px);
@@ -376,23 +376,25 @@ input {
   background: var(--bg-primary);
 }
 
-/* طبقتا الشوارع (World_Transportation) والحدود/الأسماء (World_Boundaries_and_Places)
-   فوق الأقمار الصناعية: نصهما الأصلي رمادي غامق مصمَّم لخلفية فاتحة، فيضيع فوق
-   الصور الجوية. جُرِّب brightness(0) invert(1) سابقًا فقلب كل بكسل غير شفاف
-   (خطوط الطرق نفسها أيضًا، لا فقط النص) إلى كتل بيضاء عريضة — أثر غير مقبول
-   بصريًا، فأُلغي بالكامل. البديل الحالي: drop-shadow مضاعف يرسم هالة سوداء
-   خفيفة حول كل بكسل غير شفاف دون تغيير لونه أو شكله الأصلي إطلاقًا (بعكس
-   brightness/invert)، فيعطي تباينًا واضحًا فوق أي خلفية فاتحة أو غامقة مع
-   الحفاظ على الألوان والخطوط الرفيعة كما هي تمامًا.
-   className مطبّق فقط على هاتين الطبقتين (../components/MapView.vue) — لا يمسّ
-   طبقة World_Imagery نفسها إطلاقًا. */
+/* The streets (World_Transportation) and boundaries/labels
+   (World_Boundaries_and_Places) layers over satellite imagery: their original
+   text is dark gray designed for a light background, so it gets lost over
+   aerial photos. brightness(0) invert(1) was tried first but turned every
+   opaque pixel (road lines too, not just text) into wide white blocks — a
+   visually unacceptable result, so it was dropped. Current approach: a double
+   drop-shadow that draws a light black halo around every opaque pixel without
+   changing its original color or shape at all (unlike brightness/invert),
+   giving clear contrast over any light or dark background while keeping
+   colors and thin lines exactly as they are.
+   This className is applied only to these two layers (../components/MapView.vue)
+   — it never touches the World_Imagery layer itself. */
 .esri-reference-tile {
   filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
 }
 
-/* Leaflet يفرض خلفية بيضاء ونص #333 ثابتين على البوب-أب بشكل افتراضي؛
-   بدونها يبقى محتوى البوب-أب (الذي يستخدم text-primary/-secondary) غير
-   مقروء بالوضع الداكن (نص فاتح فوق خلفية بيضاء ثابتة) */
+/* Leaflet forces a fixed white background and #333 text on popups by default;
+   without overriding it, popup content (which uses text-primary/-secondary)
+   is unreadable in dark mode (light text on a fixed white background) */
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
   background: var(--bg-surface);

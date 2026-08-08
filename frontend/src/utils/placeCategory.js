@@ -1,4 +1,4 @@
-// يشتق تصنيف مبسط للمكان من حقول Nominatim (class/type) لاختيار الأيقونة المناسبة
+// Derives a simplified place category from Nominatim's class/type fields to pick the right icon
 const TYPE_RULES = [
   { category: "religious", types: ["place_of_worship", "mosque", "church", "temple", "synagogue"] },
   { category: "education", types: ["school", "university", "college", "kindergarten", "library"] },
@@ -49,9 +49,9 @@ export function getCategoryIcon(category) {
   return CATEGORY_ICONS[category] || CATEGORY_ICONS.generic;
 }
 
-// المجموعة القابلة للاختيار يدويًا بنموذج حفظ الموقع — يجب أن تطابق تمامًا
-// القيم المسموحة بالباك اند (Location.category @Pattern)، وإلا يرفض الحفظ
-// بخطأ validation.location.category.invalid
+// The manually selectable set in the save-location form — must exactly match
+// the values allowed by the backend (Location.category @Pattern), or saving
+// is rejected with validation.location.category.invalid
 export const SELECTABLE_CATEGORIES = [
   "generic",
   "religious",

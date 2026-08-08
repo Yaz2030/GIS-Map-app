@@ -1,6 +1,6 @@
 import { reactive, watch } from "vue";
 
-// تفضيلات التطبيق تُخزن محليًا مؤقتًا لحين ربطها بسبرنق بوت
+// App preferences are stored locally for now, until wired up to Spring Boot
 const STORAGE_KEY = "mapapp.settings";
 
 function loadInitial() {
