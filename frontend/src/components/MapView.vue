@@ -14,6 +14,7 @@
       <SearchPanel
         v-if="currentMenu === 'search'"
         key="search"
+        :user-location="currentLocation"
         @select-result="handleSearchSelect"
         @close="$emit('change-menu', null)"
       />
@@ -53,6 +54,10 @@
       />
     </Transition>
 
+    <Transition name="panel-pop">
+      <AdminPanel v-if="currentMenu === 'adminPanel'" key="adminPanel" @close="$emit('change-menu', null)" />
+    </Transition>
+
     <RouteSummary :route="routeData" :loading="routeLoading" :error="routeError" @clear="clearRoute" />
 
     <SaveLocationForm
@@ -78,6 +83,7 @@ import LayersPanel from "./LayersPanel.vue";
 import SavedLocationsPanel from "./SavedLocationsPanel.vue";
 import SettingsPanel from "./SettingsPanel.vue";
 import AccountSettingsPanel from "./AccountSettingsPanel.vue";
+import AdminPanel from "./AdminPanel.vue";
 import RouteSummary from "./RouteSummary.vue";
 import SaveLocationForm from "./SaveLocationForm.vue";
 
@@ -87,19 +93,21 @@ import { settingsState } from "../store/settings";
 import { mapPreferencesState } from "../store/mapPreferences";
 import {
   savedLocationsState,
+  fetchSavedLocations,
+  clearSavedLocations,
   saveLocation,
   updateLocation,
   deleteLocation,
   deleteLocationByCoords,
   findSavedByCoords,
 } from "../store/savedLocations";
-import { isLoggedIn } from "../store/auth";
+import { authState, isLoggedIn } from "../store/auth";
 import { reverseGeocode, normalizePlace } from "../services/nominatimService";
 import { fetchRoute } from "../services/routingService";
 import { getCategoryIcon } from "../utils/placeCategory";
 import { iconSvg } from "../utils/iconHtml";
 import { escapeHtml } from "../utils/escapeHtml";
-import { WAKEB_COORDS, DEFAULT_ZOOM, FOCUS_ZOOM } from "../config/mapConfig";
+import { SAUDI_ARABIA_CENTER, DEFAULT_ZOOM, FOCUS_ZOOM, MIN_ZOOM } from "../config/mapConfig";
 
 const ROUTE_COLOR = "#1a73e8";
 const STADIA_API_KEY = import.meta.env.VITE_STADIA_API_KEY || "";
@@ -114,6 +122,7 @@ export default {
     SavedLocationsPanel,
     SettingsPanel,
     AccountSettingsPanel,
+    AdminPanel,
     RouteSummary,
     SaveLocationForm,
   },
@@ -157,6 +166,7 @@ export default {
       savedLocationsState,
       mapPreferencesState,
       settingsState,
+      authState,
     };
   },
 
@@ -179,7 +189,7 @@ export default {
     saveFormFallbackName() {
       if (this.saveForm.mode === "edit") {
         const target = this.saveForm.target;
-        return target ? target.originalName || target.name : "";
+        return target ? target.name : "";
       }
       return (this.saveForm.place && this.saveForm.place.name) || t("popup.unknownPlace");
     },
@@ -200,15 +210,32 @@ export default {
     "settingsState.autoLocation"(enabled) {
       if (enabled) this.requestGeolocation({ silent: true, center: true });
     },
+
+    "authState.user"(newUser, oldUser) {
+      if (newUser && !oldUser) {
+        this.loadSavedLocations();
+      } else if (!newUser && oldUser) {
+        clearSavedLocations();
+      }
+    },
   },
 
   mounted() {
-    this.map = L.map("map").setView([WAKEB_COORDS.lat, WAKEB_COORDS.lng], DEFAULT_ZOOM);
+    // minZoom على مستوى الخريطة نفسها يمنع المستخدم من التصغير لدرجة يتكرر
+    // فيها العالم أفقيًا جنب بعضه (يحدث لأن Leaflet لا يمنع التصغير افتراضيًا
+    // حتى تصير كل نسخة من العالم أضيق من حاوية الخريطة). نضيفه أيضًا على كل
+    // طبقة أساسية على حدة (osm/dark/satellite) حتى لا تحاول أي طبقة تحميل
+    // بلاطات أبعد من هذا الحد حتى لو تغيّرت قيمة الخريطة العامة لاحقًا
+    this.map = L.map("map", { minZoom: MIN_ZOOM }).setView(
+      [SAUDI_ARABIA_CENTER.lat, SAUDI_ARABIA_CENTER.lng],
+      DEFAULT_ZOOM
+    );
 
     this.baseLayerInstances = {
       osm: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors",
         maxZoom: 19,
+        minZoom: MIN_ZOOM,
       }),
       dark: L.tileLayer(
         `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png${STADIA_API_KEY ? `?api_key=${STADIA_API_KEY}` : ""}`,
@@ -216,15 +243,45 @@ export default {
           attribution:
             '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noopener">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> &copy; OpenStreetMap contributors',
           maxZoom: 20,
+          minZoom: MIN_ZOOM,
         }
       ),
-      satellite: L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          attribution: "Tiles &copy; Esri &mdash; Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-          maxZoom: 19,
-        }
-      ),
+      // طبقة الأقمار الصناعية = تجميعة (imagery + شوارع + تسميات/حدود) بـ
+      // layerGroup واحدة حتى تُفعَّل/تُطفأ كلها تلقائيًا مع اختيار/تبديل هذه
+      // الطبقة الأساسية نفسها، دون أي حالة أو خيار قائمة منفصل لها.
+      // الترتيب (zIndex تصاعديًا): الصور بالأسفل، شبكة الشوارع فوقها،
+      // وحدود/أسماء الأحياء والمدن بالأعلى
+      satellite: L.layerGroup([
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution: "Tiles &copy; Esri &mdash; Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+            maxZoom: 19,
+            minZoom: MIN_ZOOM,
+            zIndex: 1,
+          }
+        ),
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution: "Roads &copy; Esri",
+            maxZoom: 19,
+            minZoom: MIN_ZOOM,
+            zIndex: 2,
+            className: "esri-reference-tile",
+          }
+        ),
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution: "Labels &copy; Esri",
+            maxZoom: 19,
+            minZoom: MIN_ZOOM,
+            zIndex: 3,
+            className: "esri-reference-tile",
+          }
+        ),
+      ]),
     };
     this.baseLayerInstances[this.mapPreferencesState.baseLayer].addTo(this.map);
 
@@ -233,8 +290,17 @@ export default {
     this.map.on("click", this.handleMapClick);
     this.map.on("popupopen", this.handlePopupOpen);
 
+    // silent + center: false: يحدد موقع المستخدم وتُعرض علامته على الخريطة
+    // فقط، دون أي تغيير لعرض/تكبير الخريطة — يبقى العرض الافتراضي عند فتح
+    // التطبيق ثابتًا على السعودية (SAUDI_ARABIA_CENTER/DEFAULT_ZOOM) بغض
+    // النظر عن نجاح تحديد الموقع. زر "موقعي الحالي" (handleMyLocation) هو
+    // الوحيد الذي يمرّر center: true فيقوم بالـ zoom-in والتوسّط الفعلي.
     if (this.settingsState.autoLocation) {
-      this.requestGeolocation({ silent: true, center: true });
+      this.requestGeolocation({ silent: true, center: false });
+    }
+
+    if (isLoggedIn()) {
+      this.loadSavedLocations();
     }
   },
 
@@ -316,7 +382,6 @@ export default {
           lat: item.lat,
           lng: item.lng,
           name: item.name,
-          address: item.address,
           category: item.category,
           isSaved: true,
           savedId: item.id,
@@ -336,6 +401,17 @@ export default {
           if (marker.isPopupOpen()) this.wirePopupButtons(marker.getPopup(), place);
         }
       });
+    },
+
+    // ---------------- saved locations API ----------------
+
+    async loadSavedLocations() {
+      try {
+        await fetchSavedLocations();
+      } catch (err) {
+        console.error("Failed to load saved locations:", err);
+        pushToast(t("saved.loadError"), "error");
+      }
     },
 
     // ---------------- popup building ----------------
@@ -518,11 +594,18 @@ export default {
       this.openSaveForm(place);
     },
 
-    handleDeletePlace(place) {
-      const deleted = place.savedId ? deleteLocation(place.savedId) : deleteLocationByCoords(place.lat, place.lng);
-      if (deleted) {
-        pushToast(t("toast.locationDeleted"), "success");
-        this.map.closePopup();
+    async handleDeletePlace(place) {
+      try {
+        const deleted = place.savedId
+          ? await deleteLocation(place.savedId)
+          : await deleteLocationByCoords(place.lat, place.lng);
+        if (deleted) {
+          pushToast(t("toast.locationDeleted"), "success");
+          this.map.closePopup();
+        }
+      } catch (err) {
+        console.error("Failed to delete location:", err);
+        pushToast(t("toast.locationDeleteError"), "error");
       }
     },
 
@@ -552,33 +635,44 @@ export default {
       return false;
     },
 
-    handleSaveFormSubmit({ name, category, description }) {
+    async handleSaveFormSubmit({ name, category, description }) {
       if (this.saveForm.mode === "edit") {
         const target = this.saveForm.target;
         if (!target) return;
 
-        updateLocation(target.id, {
-          name: name || this.saveFormFallbackName,
-          category,
-          description,
-        });
-        pushToast(t("toast.locationUpdated"), "success");
-        this.closeSaveForm();
+        try {
+          await updateLocation(target.id, {
+            name: name || this.saveFormFallbackName,
+            category,
+            description,
+          });
+          pushToast(t("toast.locationUpdated"), "success");
+          this.closeSaveForm();
+        } catch (err) {
+          console.error("Failed to update location:", err);
+          pushToast(t("toast.locationUpdateError"), "error");
+        }
         return;
       }
 
       const place = this.saveForm.place;
       if (!place) return;
 
-      const result = saveLocation({
-        name: name || this.saveFormFallbackName,
-        originalName: place.name || "",
-        address: place.address,
-        description,
-        lat: place.lat,
-        lng: place.lng,
-        category: category || place.category,
-      });
+      let result;
+      try {
+        result = await saveLocation({
+          name: name || this.saveFormFallbackName,
+          category: category || place.category,
+          description,
+          lat: place.lat,
+          lng: place.lng,
+        });
+      } catch (err) {
+        console.error("Failed to save location:", err);
+        pushToast(t("toast.locationSaveError"), "error");
+        this.closeSaveForm();
+        return;
+      }
 
       if (result.duplicate) {
         pushToast(t("toast.locationExists"), "error");
@@ -700,7 +794,7 @@ export default {
 
     handleReset() {
       this.clearTemporarySelection();
-      this.map.setView([WAKEB_COORDS.lat, WAKEB_COORDS.lng], DEFAULT_ZOOM);
+      this.map.setView([SAUDI_ARABIA_CENTER.lat, SAUDI_ARABIA_CENTER.lng], DEFAULT_ZOOM);
     },
   },
 };

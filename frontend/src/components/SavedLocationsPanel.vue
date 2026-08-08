@@ -16,7 +16,11 @@
         :placeholder="t('saved.filterPlaceholder')"
       />
 
-      <div v-if="!savedLocationsState.items.length" class="panel-empty-state">
+      <div v-if="savedLocationsState.loading && !savedLocationsState.items.length" class="panel-state">
+        {{ t("saved.loading") }}
+      </div>
+
+      <div v-else-if="!savedLocationsState.items.length" class="panel-empty-state">
         {{ t("saved.empty") }}
       </div>
 
@@ -32,7 +36,6 @@
             </span>
             <span class="saved-item__text">
               <span class="saved-item__name">{{ item.name }}</span>
-              <span v-if="item.address" class="saved-item__address">{{ item.address }}</span>
               <span v-if="item.description" class="saved-item__description">{{ item.description }}</span>
             </span>
           </button>
@@ -85,15 +88,11 @@ export default {
   computed: {
     filteredItems() {
       const query = this.filterText.trim().toLowerCase();
-      const items = [...this.savedLocationsState.items].sort((a, b) =>
-        (b.createdAt || "").localeCompare(a.createdAt || "")
-      );
+      const items = this.savedLocationsState.items;
       if (!query) return items;
       return items.filter(
         (item) =>
-          item.name.toLowerCase().includes(query) ||
-          (item.address || "").toLowerCase().includes(query) ||
-          (item.description || "").toLowerCase().includes(query)
+          item.name.toLowerCase().includes(query) || (item.description || "").toLowerCase().includes(query)
       );
     },
   },
@@ -187,13 +186,6 @@ export default {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.35;
-}
-
-.saved-item__address {
-  overflow-wrap: break-word;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.4;
 }
 
 .saved-item__description {

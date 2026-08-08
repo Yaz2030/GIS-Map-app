@@ -73,10 +73,7 @@
 
       <section class="settings-section">
         <h3>{{ t("settings.about") }}</h3>
-        <p class="about-name">{{ t("app.name") }}</p>
         <p class="settings-hint">{{ t("settings.aboutText") }}</p>
-        <p class="settings-hint">{{ t("settings.aboutTech") }}</p>
-        <p class="settings-hint">{{ t("settings.aboutVersion") }}</p>
       </section>
     </div>
   </div>
@@ -134,12 +131,6 @@ export default {
   color: var(--text-secondary);
   margin: 2px 0;
   line-height: 1.5;
-}
-
-.about-name {
-  font-size: 14.5px;
-  font-weight: 700;
-  margin: 0 0 4px;
 }
 
 .segmented {

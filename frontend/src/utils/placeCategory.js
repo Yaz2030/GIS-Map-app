@@ -42,27 +42,27 @@ const CATEGORY_ICONS = {
   fuel: "category-fuel",
   shop: "category-shop",
   residential: "category-residential",
-  home: "category-residential",
   generic: "map-pin",
 };
-
-// المجموعة القابلة للاختيار يدويًا في نموذج حفظ الموقع (تشمل "المنزل" التي لا
-// يُنتجها الكشف التلقائي أبدًا، بخلاف بقية التصنيفات المشتقة من Nominatim)
-export const SELECTABLE_CATEGORIES = [
-  "generic",
-  "home",
-  "office",
-  "religious",
-  "education",
-  "health",
-  "food",
-  "shop",
-  "fuel",
-];
 
 export function getCategoryIcon(category) {
   return CATEGORY_ICONS[category] || CATEGORY_ICONS.generic;
 }
+
+// المجموعة القابلة للاختيار يدويًا بنموذج حفظ الموقع — يجب أن تطابق تمامًا
+// القيم المسموحة بالباك اند (Location.category @Pattern)، وإلا يرفض الحفظ
+// بخطأ validation.location.category.invalid
+export const SELECTABLE_CATEGORIES = [
+  "generic",
+  "religious",
+  "education",
+  "health",
+  "food",
+  "fuel",
+  "shop",
+  "office",
+  "residential",
+];
 
 export function getCategoryLabelKey(category) {
   return `categories.${category in CATEGORY_ICONS ? category : "generic"}`;

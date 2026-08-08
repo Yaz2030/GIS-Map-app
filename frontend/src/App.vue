@@ -17,6 +17,8 @@
 
   <AuthModal :open="showAuthModal" :initial-mode="authModalMode" :note="authModalNote" @close="showAuthModal = false" />
 
+  <LandingPage v-if="showLanding" @get-started="landingDismissed = true" />
+
   <ConfirmDialog />
   <ToastContainer />
 </template>
@@ -25,10 +27,12 @@
 import AppHeader from "./components/AppHeader.vue";
 import MapView from "./components/MapView.vue";
 import AuthModal from "./components/AuthModal.vue";
+import LandingPage from "./components/LandingPage.vue";
 import ConfirmDialog from "./components/ConfirmDialog.vue";
 import ToastContainer from "./components/ToastContainer.vue";
 import { t } from "./i18n";
 import { isLoggedIn } from "./store/auth";
+import { checkEmailVerification } from "./composables/useEmailVerification";
 
 export default {
   name: "App",
@@ -37,6 +41,7 @@ export default {
     AppHeader,
     MapView,
     AuthModal,
+    LandingPage,
     ConfirmDialog,
     ToastContainer,
   },
@@ -47,11 +52,21 @@ export default {
       showAuthModal: false,
       authModalMode: "login",
       authModalNote: "",
+      // إخفاء لهذه الجلسة فقط (وليس localStorage)؛ يعود true تلقائيًا
+      // بعد أي إعادة تحميل طالما المستخدم ما زال زائرًا غير مسجّل دخول
+      landingDismissed: false,
     };
+  },
+
+  computed: {
+    showLanding() {
+      return !isLoggedIn() && !this.landingDismissed;
+    },
   },
 
   mounted() {
     document.addEventListener("keydown", this.handleKeydown);
+    checkEmailVerification({ onVerified: () => this.openAuth("login") });
   },
 
   beforeUnmount() {

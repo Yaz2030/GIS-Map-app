@@ -18,7 +18,7 @@
           :class="{ active: mapPreferencesState.baseLayer === option.key }"
           @click="setBaseLayer(option.key)"
         >
-          <span class="layer-option__swatch" :style="{ background: option.color }"></span>
+          <span class="layer-option__icon"><AppIcon :name="option.icon" :size="18" /></span>
           <span>{{ t(option.labelKey) }}</span>
           <AppIcon v-if="mapPreferencesState.baseLayer === option.key" name="check-circle" :size="16" />
         </button>
@@ -62,9 +62,9 @@ export default {
     return {
       mapPreferencesState,
       baseLayers: [
-        { key: "osm", labelKey: "layers.osm", color: "#8bc34a" },
-        { key: "dark", labelKey: "layers.dark", color: "#263238" },
-        { key: "satellite", labelKey: "layers.satellite", color: "#3949ab" },
+        { key: "osm", labelKey: "layers.osm", icon: "map" },
+        { key: "dark", labelKey: "layers.dark", icon: "moon" },
+        { key: "satellite", labelKey: "layers.satellite", icon: "globe" },
       ],
       overlayList: [
         { key: "saved", labelKey: "layers.overlaySaved" },
@@ -119,12 +119,16 @@ export default {
   text-align: start;
 }
 
-.layer-option__swatch {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
+.layer-option__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: var(--text-secondary);
+}
+
+.layer-option.active .layer-option__icon {
+  color: var(--accent-primary);
 }
 
 .overlay-row {

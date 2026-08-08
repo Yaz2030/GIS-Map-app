@@ -6,8 +6,12 @@
 
 import axios from "axios";
 import { settingsState } from "../store/settings";
+import { getToken, logout } from "../store/auth";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
+// المسارات التي لا يجب إرفاق التوكن معها (لا يوجد توكن بعد قبل الدخول)
+const AUTH_EXEMPT_PATHS = ["/api/users/login", "/api/users/register"];
 
 const httpClient = axios.create({
   baseURL: BASE_URL,
@@ -22,7 +26,26 @@ function normalizeLanguage(language) {
 httpClient.interceptors.request.use((config) => {
   config.headers = config.headers || {};
   config.headers["Accept-Language"] = normalizeLanguage(settingsState.language);
+
+  const isAuthExempt = AUTH_EXEMPT_PATHS.some((path) => (config.url || "").includes(path));
+  if (!isAuthExempt) {
+    const token = getToken();
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   return config;
 });
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      logout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default httpClient;

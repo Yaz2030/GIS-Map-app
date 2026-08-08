@@ -4,3 +4,6 @@ spring.mail.username=your-email@gmail.com
 spring.mail.password=your-gmail-app-password
 # Generate with: openssl rand -base64 48
 jwt.secret=your-long-random-base64-secret-at-least-32-bytes
+# Foursquare Places API key (Service API Key from the Foursquare developer console).
+# Used server-side only by FoursquareService - never exposed to the frontend.
+foursquare.api.key=your-foursquare-api-key

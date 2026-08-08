@@ -80,5 +80,13 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(400, messageService.get(exception.getMessage())));
     }
 
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(
+            ExternalServiceException exception
+    ) {
+        return ResponseEntity.status(502)
+                .body(new ErrorResponse(502, messageService.get(exception.getMessage())));
+    }
+
 }
 

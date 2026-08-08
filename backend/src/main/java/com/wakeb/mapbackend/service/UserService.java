@@ -178,6 +178,10 @@ public class UserService {
             throw new InvalidCredentialsException("error.account.incorrectPassword");
         }
 
+        if (existingUser.getRole() == Role.ADMIN) {
+            throw new UnauthorizedAccessException("error.admin.selfDeleteNotAllowed");
+        }
+
         locationRepository.deleteByUserId(userId);
         userRepository.delete(existingUser);
 

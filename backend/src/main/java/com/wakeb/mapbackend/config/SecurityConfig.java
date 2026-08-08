@@ -63,6 +63,8 @@ public class SecurityConfig {
                                 "/api/users/resend-verification"
                         )
                         .permitAll()
+                        .requestMatchers("/api/places/**")
+                        .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()

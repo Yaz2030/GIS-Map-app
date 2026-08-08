@@ -32,9 +32,13 @@ export const translations = {
         invalidEmail: "صيغة البريد الإلكتروني غير صحيحة",
         passwordLength: "كلمة المرور يجب ألا تقل عن 6 أحرف",
         passwordMismatch: "كلمتا المرور غير متطابقتين",
+        invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        emailNotVerified: "يرجى تفعيل بريدك الإلكتروني أولاً",
+        loginFailed: "تعذر تسجيل الدخول، حاول مرة أخرى",
+        registerFailed: "تعذر إنشاء الحساب، حاول مرة أخرى",
       },
       loginSuccess: "تم تسجيل الدخول بنجاح",
-      registerSuccess: "تم إنشاء الحساب بنجاح",
+      registerSuccess: "تم إنشاء الحساب بنجاح، يرجى تفقد بريدك الإلكتروني لتفعيل الحساب",
       logoutSuccess: "تم تسجيل الخروج",
       loginRequiredLocations: "يلزم تسجيل الدخول لحفظ المواقع وإدارتها. سجّل الدخول أو أنشئ حسابًا للمتابعة.",
       forgotPassword: "نسيت كلمة المرور؟",
@@ -74,6 +78,8 @@ export const translations = {
     saved: {
       title: "المواقع المحفوظة",
       filterPlaceholder: "ابحث ضمن المحفوظات...",
+      loading: "جارٍ تحميل المواقع المحفوظة...",
+      loadError: "تعذر تحميل المواقع المحفوظة",
       empty: "لا توجد مواقع محفوظة بعد",
       emptyFiltered: "لا توجد نتائج مطابقة للبحث",
       edit: "تعديل",
@@ -107,9 +113,8 @@ export const translations = {
       autoLocation: "تحديد الموقع تلقائيًا",
       autoLocationHint: "محاولة تحديد موقعك عند فتح الخريطة",
       about: "حول التطبيق",
-      aboutText: "مشروع تدريب لعرض خرائط ويب تفاعلية.",
-      aboutTech: "الواجهة الأمامية: Vue.js و Leaflet",
-      aboutVersion: "الإصدار 1.0.0",
+      aboutText:
+        "خريطة واكب — طورتها أنا يزيد الهمامي كتدريب تعاوني في شركة واكب، بتقنيات Vue.js وLeaflet وSpring Boot وMongoDB.",
     },
     route: {
       title: "ملخص المسار",
@@ -134,6 +139,9 @@ export const translations = {
       locationUpdated: "تم تحديث الموقع",
       locationDeleted: "تم حذف الموقع",
       locationExists: "هذا الموقع محفوظ مسبقًا",
+      locationSaveError: "تعذر حفظ الموقع، حاول مرة أخرى",
+      locationUpdateError: "تعذر تحديث الموقع، حاول مرة أخرى",
+      locationDeleteError: "تعذر حذف الموقع، حاول مرة أخرى",
     },
     geolocation: {
       loading: "جارٍ تحديد موقعك...",
@@ -150,7 +158,6 @@ export const translations = {
       fuel: "محطة وقود",
       shop: "متجر / مركز تسوق",
       residential: "سكني",
-      home: "المنزل",
       generic: "موقع",
     },
     common: {
@@ -162,6 +169,7 @@ export const translations = {
     account: {
       title: "إعدادات الحساب",
       menuItem: "إعدادات الحساب",
+      change: "تغيير",
       name: {
         title: "الاسم",
         label: "الاسم",
@@ -170,14 +178,18 @@ export const translations = {
         error: "تعذر تحديث الاسم، حاول مرة أخرى",
       },
       password: {
+        label: "كلمة المرور",
         title: "تغيير كلمة المرور",
         current: "كلمة المرور الحالية",
         new: "كلمة المرور الجديدة",
         confirm: "تأكيد كلمة المرور الجديدة",
         save: "تغيير كلمة المرور",
+        show: "إظهار كلمة المرور",
+        hide: "إخفاء كلمة المرور",
         updated: "تم تغيير كلمة المرور بنجاح",
         errorWrongCurrent: "كلمة المرور الحالية غير صحيحة",
         errorMismatch: "كلمتا المرور الجديدتان غير متطابقتين",
+        errorWeak: "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، ورمز خاص (@ # $ % ! & *)",
         errorGeneric: "تعذر تغيير كلمة المرور، حاول مرة أخرى",
       },
       delete: {
@@ -185,6 +197,7 @@ export const translations = {
         warning: "هذا الإجراء نهائي ولا يمكن التراجع عنه. سيتم حذف حسابك وجميع بياناتك بشكل دائم.",
         passwordLabel: "أدخل كلمة المرور للتأكيد",
         button: "حذف الحساب",
+        confirmButton: "حذف نهائياً",
         confirmTitle: "حذف الحساب نهائيًا",
         confirmMessage: "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
         errorWrongPassword: "كلمة المرور غير صحيحة",
@@ -192,6 +205,46 @@ export const translations = {
         success: "تم حذف الحساب بنجاح",
       },
       deleteSuccessNote: "تم حذف حسابك بنجاح. يمكنك تسجيل الدخول بحساب آخر أو إنشاء حساب جديد.",
+    },
+    verifyEmail: {
+      success: "تم تفعيل حسابك بنجاح",
+      error: "تعذر تفعيل الحساب، رابط التحقق غير صالح أو منتهي الصلاحية",
+    },
+    landing: {
+      title: "خريطة واكب",
+      sectionHeading: "من التدريب إلى التطبيق",
+      description:
+        "أنا يزيد الهمامي، طورت خريطة واكب خلال فترة تدريبي التعاوني في شركة واكب، كتجربة عملية في تطوير تطبيق ويب متكامل — بدءًا من تصميم الواجهة وحتى بناء الخدمات الخلفية وربطها بقاعدة البيانات.",
+      description2:
+        "يعكس المشروع المهارات والخبرات العملية اللي اكتسبتها خلال فترة التدريب، وتحويل ما تعلّمته إلى تطبيق فعلي متكامل.",
+      getStarted: "ابدأ الاستكشاف",
+    },
+    admin: {
+      title: "لوحة تحكم الأدمن",
+      loading: "جاري تحميل المستخدمين...",
+      empty: "لا يوجد مستخدمون",
+      you: "أنت",
+      table: {
+        name: "الاسم",
+        email: "البريد الإلكتروني",
+        role: "الدور",
+      },
+      pagination: {
+        prev: "السابق",
+        next: "التالي",
+        pageLabel: "صفحة",
+      },
+      delete: {
+        button: "حذف",
+        confirmTitle: "حذف المستخدم",
+        confirmMessage: "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.",
+        success: "تم حذف المستخدم بنجاح",
+        error: "تعذر حذف المستخدم، حاول مرة أخرى",
+      },
+      errors: {
+        forbidden: "ليس لديك صلاحية للوصول لهذا القسم",
+        loadFailed: "تعذر تحميل قائمة المستخدمين",
+      },
     },
   },
 
@@ -227,9 +280,13 @@ export const translations = {
         invalidEmail: "Invalid email format",
         passwordLength: "Password must be at least 6 characters",
         passwordMismatch: "Passwords do not match",
+        invalidCredentials: "Invalid email or password",
+        emailNotVerified: "Please verify your email first",
+        loginFailed: "Login failed, please try again",
+        registerFailed: "Registration failed, please try again",
       },
       loginSuccess: "Logged in successfully",
-      registerSuccess: "Account created successfully",
+      registerSuccess: "Account created successfully. Please check your email to activate your account.",
       logoutSuccess: "Logged out successfully",
       loginRequiredLocations: "You need to log in to save and manage locations. Log in or register to continue.",
       forgotPassword: "Forgot password?",
@@ -269,6 +326,8 @@ export const translations = {
     saved: {
       title: "Saved Locations",
       filterPlaceholder: "Filter saved locations...",
+      loading: "Loading saved locations...",
+      loadError: "Could not load saved locations",
       empty: "No saved locations yet",
       emptyFiltered: "No results match your filter",
       edit: "Edit",
@@ -302,9 +361,8 @@ export const translations = {
       autoLocation: "Auto Location",
       autoLocationHint: "Try to detect your location when the map opens",
       about: "About",
-      aboutText: "An internship project for interactive web mapping.",
-      aboutTech: "Frontend: Vue.js and Leaflet",
-      aboutVersion: "Version 1.0.0",
+      aboutText:
+        "Wakeb Map — built by me, Yazeed Alhammami, as a cooperative training project at Wakeb, using Vue.js, Leaflet, Spring Boot, and MongoDB.",
     },
     route: {
       title: "Route Summary",
@@ -329,6 +387,9 @@ export const translations = {
       locationUpdated: "Location updated",
       locationDeleted: "Location deleted",
       locationExists: "This location is already saved",
+      locationSaveError: "Could not save location, please try again",
+      locationUpdateError: "Could not update location, please try again",
+      locationDeleteError: "Could not delete location, please try again",
     },
     geolocation: {
       loading: "Locating you...",
@@ -345,7 +406,6 @@ export const translations = {
       fuel: "Fuel Station",
       shop: "Shop / Mall",
       residential: "Residential",
-      home: "Home",
       generic: "Place",
     },
     common: {
@@ -357,6 +417,7 @@ export const translations = {
     account: {
       title: "Account Settings",
       menuItem: "Account Settings",
+      change: "Change",
       name: {
         title: "Name",
         label: "Name",
@@ -365,14 +426,18 @@ export const translations = {
         error: "Could not update name, please try again",
       },
       password: {
+        label: "Password",
         title: "Change Password",
         current: "Current Password",
         new: "New Password",
         confirm: "Confirm New Password",
         save: "Change Password",
+        show: "Show password",
+        hide: "Hide password",
         updated: "Password changed successfully",
         errorWrongCurrent: "Current password is incorrect",
         errorMismatch: "The new passwords do not match",
+        errorWeak: "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a special character (@ # $ % ! & *)",
         errorGeneric: "Could not change password, please try again",
       },
       delete: {
@@ -380,6 +445,7 @@ export const translations = {
         warning: "This action is permanent and cannot be undone. Your account and all your data will be deleted forever.",
         passwordLabel: "Enter your password to confirm",
         button: "Delete Account",
+        confirmButton: "Delete Permanently",
         confirmTitle: "Permanently delete account",
         confirmMessage: "Are you sure you want to delete your account? This action cannot be undone.",
         errorWrongPassword: "Incorrect password",
@@ -387,6 +453,46 @@ export const translations = {
         success: "Account deleted successfully",
       },
       deleteSuccessNote: "Your account has been deleted. You can log in with another account or register a new one.",
+    },
+    verifyEmail: {
+      success: "Your account has been activated successfully",
+      error: "Could not activate your account, the verification link is invalid or has expired",
+    },
+    landing: {
+      title: "Wakeb Map",
+      sectionHeading: "From Training to Application",
+      description:
+        "I'm Yazeed Alhammami. I built Wakeb Map during my cooperative training at Wakeb, as a hands-on experience in building a complete web application — from interface design to backend services and database integration.",
+      description2:
+        "The project reflects the skills and practical experience I gained during my training, turning what I learned into a fully working application.",
+      getStarted: "Start Exploring",
+    },
+    admin: {
+      title: "Admin Panel",
+      loading: "Loading users...",
+      empty: "No users found",
+      you: "You",
+      table: {
+        name: "Name",
+        email: "Email",
+        role: "Role",
+      },
+      pagination: {
+        prev: "Previous",
+        next: "Next",
+        pageLabel: "Page",
+      },
+      delete: {
+        button: "Delete",
+        confirmTitle: "Delete User",
+        confirmMessage: "Are you sure you want to delete this user? This action cannot be undone.",
+        success: "User deleted successfully",
+        error: "Could not delete user, please try again",
+      },
+      errors: {
+        forbidden: "You don't have permission to access this section",
+        loadFailed: "Could not load the user list",
+      },
     },
   },
 };

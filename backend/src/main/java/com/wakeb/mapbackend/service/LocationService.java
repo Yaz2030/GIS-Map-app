@@ -52,6 +52,7 @@ public class LocationService {
         oldLocation.setLatitude(location.getLatitude());
         oldLocation.setLongitude(location.getLongitude());
         oldLocation.setDescription(location.getDescription());
+        oldLocation.setCategory(location.getCategory());
 
         return locationRepository.save(oldLocation);
 

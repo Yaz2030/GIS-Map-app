@@ -17,7 +17,7 @@ function loadInitial() {
   } catch (err) {
     console.error("Failed to read settings from storage:", err);
   }
-  return { theme: "light", language: "ar", autoLocation: false };
+  return { theme: "light", language: "en", autoLocation: false };
 }
 
 export const settingsState = reactive(loadInitial());

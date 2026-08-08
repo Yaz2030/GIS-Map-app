@@ -1,17 +1,21 @@
 import { reactive } from "vue";
+import httpClient from "../services/httpClient";
 
 // =============================================================
-// تسجيل دخول وهمي (Mock) على جهة العميل فقط.
-// لا يوجد أي اتصال بخادم ولا كلمة مرور حقيقية تُخزّن هنا.
-// عند ربط Spring Boot لاحقًا، يجب استبدال هذا الملف بالكامل
-// بطلبات حقيقية إلى /api/auth/login و /api/auth/register
-// والاعتماد على توكن (JWT) بدلاً من هذا الكائن المحلي.
+// حالة مصادقة حقيقية متصلة بالباك اند (Spring Boot) عبر JWT.
+// التوكن يُخزَّن كنص خام في localStorage (رد /api/users/login هو
+// التوكن نفسه، وليس JSON فيه حقل token)، وبيانات المستخدم تُجلب
+// بعد ذلك من GET /api/users/me وتُخزَّن بشكل منفصل.
 // =============================================================
 
 const STORAGE_KEY = "mapapp.auth.user";
+const TOKEN_KEY = "mapapp.auth.token";
 
-function loadInitial() {
+function loadInitialUser() {
   try {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return null;
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const user = JSON.parse(raw);
@@ -24,7 +28,7 @@ function loadInitial() {
 }
 
 export const authState = reactive({
-  user: loadInitial(),
+  user: loadInitialUser(),
 });
 
 function persist() {
@@ -39,24 +43,56 @@ function persist() {
   }
 }
 
+function setToken(token) {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch (err) {
+    console.error("Failed to persist auth token:", err);
+  }
+}
+
+export function getToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || null;
+  } catch (err) {
+    console.error("Failed to read auth token:", err);
+    return null;
+  }
+}
+
 export function isLoggedIn() {
-  return !!authState.user;
+  return !!getToken() && !!authState.user;
 }
 
-// محاكاة تسجيل دخول ناجح دائمًا محليًا (لا يوجد تحقق حقيقي من كلمة المرور)
-export function mockLogin({ email }) {
-  authState.user = {
-    email,
-    name: email.split("@")[0],
-  };
-  persist();
+// يرمي خطأ axios كما هو عند فشل الدخول (بيانات خاطئة، بريد غير موثّق..)
+// حتى تتعامل معه الواجهة (AuthModal) وتعرض الرسالة المناسبة
+export async function login({ email, password }) {
+  const { data: token } = await httpClient.post("/api/users/login", { email, password });
+  setToken(token);
+
+  try {
+    const { data: user } = await httpClient.get("/api/users/me");
+    authState.user = user;
+    persist();
+  } catch (err) {
+    setToken(null);
+    authState.user = null;
+    persist();
+    throw err;
+  }
+
   return authState.user;
 }
 
-export function mockRegister({ name, email }) {
-  authState.user = { email, name };
-  persist();
-  return authState.user;
+// لا يسجّل الدخول تلقائيًا: الباك اند لا يرجع توكن عند التسجيل،
+// فقط ينشئ الحساب ويرسل بريد تفعيل
+export async function register({ name, email, password }) {
+  const { data } = await httpClient.post("/api/users/register", { name, email, password });
+  return data;
 }
 
 export function updateUserName(name) {
@@ -67,5 +103,6 @@ export function updateUserName(name) {
 
 export function logout() {
   authState.user = null;
+  setToken(null);
   persist();
 }

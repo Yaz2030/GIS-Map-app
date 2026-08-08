@@ -12,6 +12,7 @@
         <p v-if="note && mode !== 'forgot'" class="auth-modal__note">{{ note }}</p>
 
         <form v-if="mode !== 'forgot'" class="auth-modal__body" @submit.prevent="submit" novalidate>
+          <p v-if="formError" class="field-error auth-modal__form-error">{{ formError }}</p>
           <div v-if="mode === 'register'" class="form-group">
             <label for="auth-name">{{ t("auth.fullName") }}</label>
             <input id="auth-name" v-model.trim="form.name" type="text" autocomplete="name" />
@@ -42,7 +43,7 @@
             </button>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block">
+          <button type="submit" class="btn btn-primary btn-block" :disabled="submitting">
             {{ mode === "login" ? t("auth.loginButton") : t("auth.registerButton") }}
           </button>
         </form>
@@ -75,7 +76,7 @@
 <script>
 import AppIcon from "./AppIcon.vue";
 import { t } from "../i18n";
-import { mockLogin, mockRegister } from "../store/auth";
+import { login, register } from "../store/auth";
 import { pushToast } from "../store/toast";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -111,6 +112,8 @@ export default {
       mode: "login",
       form: emptyForm(),
       errors: {},
+      formError: "",
+      submitting: false,
       forgotEmail: "",
       forgotError: "",
       forgotSubmitted: false,
@@ -131,6 +134,7 @@ export default {
         this.mode = this.initialMode === "register" ? "register" : "login";
         this.form = emptyForm();
         this.errors = {};
+        this.formError = "";
         this.forgotEmail = "";
         this.forgotError = "";
         this.forgotSubmitted = false;
@@ -144,6 +148,7 @@ export default {
     switchMode() {
       this.mode = this.mode === "login" ? "register" : "login";
       this.errors = {};
+      this.formError = "";
     },
 
     backToLogin() {
@@ -200,19 +205,40 @@ export default {
       return Object.keys(errors).length === 0;
     },
 
-    submit() {
+    async submit() {
       if (!this.validate()) return;
 
-      // ملاحظة: هذا تسجيل دخول/تسجيل وهمي محليًا فقط (بدون كلمة مرور حقيقية تُخزَّن)
-      if (this.mode === "login") {
-        mockLogin({ email: this.form.email });
-        pushToast(t("auth.loginSuccess"), "success");
-      } else {
-        mockRegister({ name: this.form.name, email: this.form.email });
-        pushToast(t("auth.registerSuccess"), "success");
-      }
+      this.formError = "";
+      this.submitting = true;
 
-      this.close();
+      try {
+        if (this.mode === "login") {
+          await login({ email: this.form.email, password: this.form.password });
+          pushToast(t("auth.loginSuccess"), "success");
+          this.close();
+        } else {
+          await register({ name: this.form.name, email: this.form.email, password: this.form.password });
+          pushToast(t("auth.registerSuccess"), "success");
+          this.close();
+        }
+      } catch (err) {
+        const status = err.response?.status;
+        const backendMessage = err.response?.data?.message;
+
+        if (this.mode === "login") {
+          if (status === 403) {
+            this.formError = t("auth.errors.emailNotVerified");
+          } else if (status === 401) {
+            this.formError = backendMessage || t("auth.errors.invalidCredentials");
+          } else {
+            this.formError = backendMessage || t("auth.errors.loginFailed");
+          }
+        } else {
+          this.formError = backendMessage || t("auth.errors.registerFailed");
+        }
+      } finally {
+        this.submitting = false;
+      }
     },
 
     close() {
@@ -265,6 +291,10 @@ export default {
   line-height: 1.5;
   color: var(--text-secondary);
   margin: 0 0 16px;
+}
+
+.auth-modal__form-error {
+  margin: 0 0 14px;
 }
 
 .auth-modal__forgot {

@@ -1,7 +1,11 @@
 // =============================================================
-// خدمة معزولة للاتصال بـ Nominatim (بحث + عكس الترميز الجغرافي).
-// عند توفر Spring Boot لاحقًا يمكن استبدال هذه الدوال بطلبات
-// موجهة إلى الخادم الخاص بنا (proxy) دون تغيير بقية الواجهة.
+// خدمة معزولة للاتصال بـ Nominatim: عكس الترميز الجغرافي (تفاصيل عنوان نقطة
+// على الخريطة، مثل بوب-أب الموقع) + دالة بحث نصي بسيطة تُستخدم فقط كمصدر
+// احتياطي من ../services/placesService.js عندما يرجّع Foursquare نتائج
+// فاضية/قليلة جدًا (مفيد خصوصًا للمدن/المناطق الجغرافية الواسعة التي لا
+// يغطيها Foursquare أصلاً، المخصص للأماكن التجارية). Foursquare عبر الباك
+// اند يبقى المصدر الأساسي للبحث لأن بيانات Nominatim محدودة، خصوصًا للفنادق
+// والمحلات.
 //
 // ملاحظة: لا يمكن ضبط رأس User-Agent من fetch داخل المتصفح لأنه
 // من الرؤوس المحجوزة (forbidden header) والمتصفحات تتجاهله أو
@@ -11,11 +15,6 @@
 import { getCategory } from "../utils/placeCategory";
 
 const BASE_URL = import.meta.env.VITE_NOMINATIM_API || "https://nominatim.openstreetmap.org";
-
-// نتيجة تُعتبر "ضعيفة" إذا كانت قليلة العدد وبلا أي تطابق ذي أهمية معقولة،
-// عندها نوسّع نطاق البحث تلقائيًا بدل الاكتفاء بنتائج غير مفيدة
-const WEAK_IMPORTANCE_THRESHOLD = 0.35;
-const WEAK_RESULT_COUNT = 3;
 
 export async function reverseGeocode(lat, lng, language = "ar") {
   const url = `${BASE_URL}/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=18&addressdetails=1&accept-language=${encodeURIComponent(language)}`;
@@ -27,112 +26,42 @@ export async function reverseGeocode(lat, lng, language = "ar") {
   return res.json();
 }
 
-// trim + طيّ المسافات المتكررة فقط، دون حذف أي أحرف عربية أو إنجليزية ذات معنى
-function normalizeQuery(query) {
-  return (query || "").trim().replace(/\s+/g, " ");
-}
+// بحث بسيط بطلب واحد (بلا إعادة محاولات أو ترتيب نتائج) — يكفي دور الاحتياط
+// الذي تستخدمه به placesService.js
+export async function searchPlaces(query, language = "ar", limit = 8) {
+  const trimmed = (query || "").trim();
+  if (!trimmed) return [];
 
-function isShortQuery(query) {
-  return query.length <= 30 && query.split(" ").length <= 4;
-}
-
-async function runSearch(query, language, limit, extraParams = {}) {
   const params = new URLSearchParams({
     format: "jsonv2",
     addressdetails: "1",
     namedetails: "1",
-    extratags: "1",
     dedupe: "1",
-    bounded: "0",
     limit: String(limit),
     "accept-language": language,
-    q: query,
-    ...extraParams,
+    q: trimmed,
   });
 
   const res = await fetch(`${BASE_URL}/search?${params.toString()}`);
   if (!res.ok) {
-    throw new Error(`Search failed with status ${res.status}`);
+    throw new Error(`Nominatim search failed with status ${res.status}`);
   }
   return res.json();
 }
 
-function resultKey(item) {
-  if (item.place_id !== undefined && item.place_id !== null) return `pid_${item.place_id}`;
-  return `coord_${Number(item.lat).toFixed(5)}_${Number(item.lon).toFixed(5)}`;
-}
-
-function mergeResults(map, results) {
-  for (const item of results) {
-    const key = resultKey(item);
-    if (!map.has(key)) map.set(key, item);
-  }
-}
-
-function isWeak(results) {
-  if (!results.length) return true;
-  if (results.length >= WEAK_RESULT_COUNT) return false;
-  const topImportance = Math.max(...results.map((item) => Number(item.importance) || 0));
-  return topImportance < WEAK_IMPORTANCE_THRESHOLD;
-}
-
-function scoreResult(item, normalizedQuery) {
-  let score = Number(item.importance) || 0;
-
-  // place_rank أصغر = كيان أكثر أهمية/شهرة (دولة/مدينة) مقارنة بمبنى صغير
-  if (item.place_rank !== undefined) {
-    score += Math.max(0, (30 - Number(item.place_rank)) / 100);
-  }
-
-  const primaryName = (item.namedetails?.name || item.name || item.display_name || "").toLowerCase();
-  const query = normalizedQuery.toLowerCase();
-  if (primaryName === query) score += 0.5;
-  else if (primaryName.startsWith(query)) score += 0.25;
-  else if (primaryName.includes(query)) score += 0.1;
-
-  if ((item.address?.country_code || "").toLowerCase() === "sa") score += 0.15;
-
-  return score;
-}
-
-function rankResults(results, normalizedQuery) {
-  return [...results].sort((a, b) => scoreResult(b, normalizedQuery) - scoreResult(a, normalizedQuery));
-}
-
-export async function searchPlaces(query, language = "ar", limit = 10) {
-  const normalized = normalizeQuery(query);
-  if (!normalized) return [];
-
-  const merged = new Map();
-
-  // 1) داخل السعودية أولًا
-  const saResults = await runSearch(normalized, language, limit, { countrycodes: "sa" });
-  mergeResults(merged, saResults);
-
-  // 2) نتائج ضعيفة أو معدومة => إعادة المحاولة عالميًا تلقائيًا
-  if (isWeak(Array.from(merged.values()))) {
-    const globalResults = await runSearch(normalized, language, limit);
-    mergeResults(merged, globalResults);
-  }
-
-  // 3) ما زالت ضعيفة وطلب البحث قصير (يشبه اسم منشأة/عمل) => نحاول مرة واحدة
-  //    إضافية بإلحاق اسم السعودية لمساعدة نوميناتيم على تحديد النطاق الجغرافي
-  if (isWeak(Array.from(merged.values())) && isShortQuery(normalized)) {
-    const regionSuffix = language === "en" ? "Saudi Arabia" : "السعودية";
-    const regionResults = await runSearch(`${normalized} ${regionSuffix}`, language, limit);
-    mergeResults(merged, regionResults);
-  }
-
-  return rankResults(Array.from(merged.values()), normalized);
-}
-
-export function buildShortAddress(item) {
+// عنوان كامل من حقول addressdetails الخاصة بـ Nominatim: الحي، الشارع،
+// المدينة، الدولة (اسم المكان نفسه يُعرض بشكل منفصل كعنوان بارز بالبوب-أب،
+// فلا يُكرَّر هنا). ملاحظة: neighbourhood/suburb ليست مضمونة التوفر دائمًا
+// من الـ API — نعتمد على ما هو متاح فعليًا فقط دون افتراض قيم ثابتة
+export function buildFullAddress(item) {
   if (!item) return "";
   const addr = item.address || {};
 
   const parts = [
-    addr.road || addr.neighbourhood || addr.suburb,
+    addr.neighbourhood || addr.suburb,
+    addr.road,
     addr.city || addr.town || addr.village || addr.county,
+    addr.country,
   ].filter(Boolean);
 
   if (parts.length) return parts.join(", ");
@@ -153,7 +82,7 @@ export function normalizePlace(item, fallbackLat, fallbackLng) {
     lat,
     lng,
     name: name || "",
-    address: buildShortAddress(item),
+    address: buildFullAddress(item),
     category: getCategory(item),
     displayName: item.display_name || "",
   };

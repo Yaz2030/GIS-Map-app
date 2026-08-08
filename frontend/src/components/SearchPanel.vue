@@ -48,14 +48,21 @@
 
 <script>
 import AppIcon from "./AppIcon.vue";
-import { t, currentLanguage } from "../i18n";
-import { searchPlaces, normalizePlace } from "../services/nominatimService";
+import { t } from "../i18n";
+import { searchPlaces } from "../services/placesService";
 import { getCategoryIcon } from "../utils/placeCategory";
 
 export default {
   name: "SearchPanel",
 
   components: { AppIcon },
+
+  props: {
+    userLocation: {
+      type: Object,
+      default: null,
+    },
+  },
 
   emits: ["select-result", "close"],
 
@@ -106,10 +113,10 @@ export default {
       this.hasSearched = true;
 
       try {
-        const data = await searchPlaces(trimmed, currentLanguage(), 10);
-        this.results = data.map((item) => normalizePlace(item));
+        const geo = this.userLocation ? { lat: this.userLocation.lat, lon: this.userLocation.lng } : {};
+        this.results = await searchPlaces(trimmed, geo);
       } catch (err) {
-        console.error("Nominatim search error:", err);
+        console.error("Places search error:", err);
         this.error = t("search.error");
         this.results = [];
       } finally {

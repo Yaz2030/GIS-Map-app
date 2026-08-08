@@ -14,11 +14,22 @@
     </div>
 
     <div class="app-header__brand">
-      <img :src="logoUrl" class="app-header__logo" alt="" />
-      <span class="app-header__title">{{ t("app.name") }}</span>
+      <img :src="logoUrl" class="app-header__logo" :alt="t('app.name')" />
     </div>
 
     <div class="app-header__end">
+      <button
+        v-if="isAdmin"
+        type="button"
+        class="icon-btn header-icon-btn"
+        :class="{ active: currentMenu === 'adminPanel' }"
+        :aria-label="t('admin.title')"
+        :aria-pressed="currentMenu === 'adminPanel'"
+        @click="handleAdminClick"
+      >
+        <AppIcon name="shield" :size="20" />
+      </button>
+
       <div class="account-wrapper">
         <button
           type="button"
@@ -69,6 +80,7 @@ import AppIcon from "./AppIcon.vue";
 import { t } from "../i18n";
 import { authState, logout } from "../store/auth";
 import { pushToast } from "../store/toast";
+import wakebLogo from "../assets/images/wakeb-logo-white.svg";
 
 export default {
   name: "AppHeader",
@@ -86,7 +98,7 @@ export default {
 
   data() {
     return {
-      logoUrl: "/images/WL-Photoroom.png",
+      logoUrl: wakebLogo,
       authState,
       accountMenuOpen: false,
     };
@@ -95,6 +107,10 @@ export default {
   computed: {
     isLoggedIn() {
       return !!this.authState.user;
+    },
+
+    isAdmin() {
+      return this.authState.user?.role === "ADMIN";
     },
 
     accountLabel() {
@@ -127,6 +143,11 @@ export default {
     handleSettingsClick() {
       this.accountMenuOpen = false;
       this.$emit("change-menu", "settings");
+    },
+
+    handleAdminClick() {
+      this.accountMenuOpen = false;
+      this.$emit("change-menu", "adminPanel");
     },
 
     handleAccountSettingsClick() {
@@ -162,7 +183,7 @@ export default {
 .app-header {
   flex: 0 0 var(--header-height);
   height: var(--header-height);
-  background: var(--accent-gradient);
+  background: var(--header-gradient);
   color: #fff;
   display: flex;
   align-items: center;
@@ -170,13 +191,14 @@ export default {
   padding-inline: 16px;
   position: relative;
   z-index: 2000;
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--header-shadow);
 }
 
 .app-header__start,
 .app-header__end {
   display: flex;
   align-items: center;
+  gap: 8px;
   min-width: 120px;
 }
 
@@ -187,22 +209,17 @@ export default {
 .app-header__brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 
+/* شعار نصي عريض (98x25) لا رمز مربع — يُقاس بالارتفاع ليحافظ على تناسبه
+   الأصلي بدل تربيعه، خصوصًا الآن وهو العنصر الوحيد الممثّل للعلامة بالهيدر */
 .app-header__logo {
-  width: 36px;
-  height: 36px;
+  height: 28px;
+  width: auto;
   object-fit: contain;
-}
-
-.app-header__title {
-  font-size: 16px;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 .account-wrapper {
