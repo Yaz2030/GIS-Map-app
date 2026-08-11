@@ -192,6 +192,11 @@ export default {
   position: relative;
   z-index: 2000;
   box-shadow: var(--header-shadow);
+  /* Fixed (not logical) so __start/__end don't swap sides when the page dir
+     toggles with language: settings always ends up on the right, account on
+     the left. .account-wrapper below reverses this back to the real page
+     direction so its own text/menu content still reads normally. */
+  direction: rtl;
 }
 
 .app-header__start,
@@ -225,6 +230,13 @@ export default {
 
 .account-wrapper {
   position: relative;
+  /* Undo the header's forced direction: rtl for this subtree so the account
+     label and dropdown menu text still follow the real page language. */
+  direction: ltr;
+}
+
+html[dir="rtl"] .account-wrapper {
+  direction: rtl;
 }
 
 .header-icon-btn {
@@ -252,11 +264,11 @@ export default {
 }
 
 .account-menu {
-  /* Anchored to the account button's outer edge and expands toward the
-     center, so it always stays within screen bounds whether the button is at
-     the far right (LTR) or far left (RTL) */
-  inset-inline-start: auto;
-  inset-inline-end: 0;
+  /* The account button now always sits at the far left (see .app-header),
+     so the menu always expands toward the right/center regardless of
+     language - a physical, not logical, position. */
+  left: 0;
+  right: auto;
   width: 180px;
   max-width: calc(100vw - 32px);
 }

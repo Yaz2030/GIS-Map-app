@@ -206,7 +206,7 @@ input {
   position: absolute;
   top: 16px;
   /* Next to the floating sidebar, follows reading direction (right in RTL, left in LTR) */
-  inset-inline-start: 76px;
+  right: 76px;
   width: 340px;
   max-width: calc(100vw - 24px);
   max-height: calc(100% - 32px);

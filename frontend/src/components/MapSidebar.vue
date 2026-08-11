@@ -88,7 +88,7 @@ export default {
   position: absolute;
   top: 16px;
   /* Follows reading direction: right side of the map in Arabic (RTL), left side in English (LTR) */
-  inset-inline-start: 16px;
+  right: 16px;
   z-index: 1000;
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -148,7 +148,7 @@ export default {
 .tooltip {
   position: absolute;
   top: 50%;
-  inset-inline-start: calc(100% + 10px);
+  right: calc(100% + 10px);
   transform: translateY(-50%);
   background: var(--text-primary);
   color: var(--bg-surface);
