@@ -356,15 +356,19 @@ input {
 
 /* ---------- Leaflet overrides (global: popups render outside the Vue tree) ---------- */
 
-.leaflet-popup-content-wrapper {
+/* Leaflet's own CSS (imported in main.js, before this file) hardcodes a white
+   popup background and #333 text; without this override, popup content
+   (which uses text-primary/-secondary) is unreadable in dark mode. The
+   .leaflet-container prefix also bumps specificity above Leaflet's own
+   selector, as a safety net in case the import order above is ever
+   disturbed again — this exact combination (Leaflet's CSS loading after
+   ours, at equal specificity) is what silently broke this fix before. */
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip {
   background: var(--bg-surface);
   color: var(--text-primary);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
-}
-
-.leaflet-popup-tip {
-  background: var(--bg-surface);
 }
 
 .leaflet-popup-content {
@@ -390,15 +394,6 @@ input {
    — it never touches the World_Imagery layer itself. */
 .esri-reference-tile {
   filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
-}
-
-/* Leaflet forces a fixed white background and #333 text on popups by default;
-   without overriding it, popup content (which uses text-primary/-secondary)
-   is unreadable in dark mode (light text on a fixed white background) */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: var(--bg-surface);
-  color: var(--text-primary);
 }
 
 .leaflet-container a.leaflet-popup-close-button {

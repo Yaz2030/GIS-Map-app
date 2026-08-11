@@ -9,9 +9,14 @@
           </button>
         </div>
 
-        <p v-if="note && mode !== 'forgot'" class="auth-modal__note">{{ note }}</p>
+        <p v-if="note && (mode === 'login' || mode === 'register')" class="auth-modal__note">{{ note }}</p>
 
-        <form v-if="mode !== 'forgot'" class="auth-modal__body" @submit.prevent="submit" novalidate>
+        <form
+          v-if="mode === 'login' || mode === 'register'"
+          class="auth-modal__body"
+          @submit.prevent="submit"
+          novalidate
+        >
           <p v-if="formError" class="field-error auth-modal__form-error">{{ formError }}</p>
           <div v-if="mode === 'register'" class="form-group">
             <label for="auth-name">{{ t("auth.fullName") }}</label>
@@ -27,13 +32,43 @@
 
           <div class="form-group">
             <label for="auth-password">{{ t("auth.password") }}</label>
-            <input id="auth-password" v-model="form.password" type="password" autocomplete="current-password" />
+            <div class="password-field">
+              <input
+                id="auth-password"
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                :autocomplete="mode === 'register' ? 'new-password' : 'current-password'"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                :aria-label="t(showPassword ? 'auth.hidePassword' : 'auth.showPassword')"
+                @click="showPassword = !showPassword"
+              >
+                <AppIcon :name="showPassword ? 'eye-off' : 'eye'" :size="18" />
+              </button>
+            </div>
             <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
           </div>
 
           <div v-if="mode === 'register'" class="form-group">
             <label for="auth-confirm">{{ t("auth.confirmPassword") }}</label>
-            <input id="auth-confirm" v-model="form.confirmPassword" type="password" autocomplete="new-password" />
+            <div class="password-field">
+              <input
+                id="auth-confirm"
+                v-model="form.confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                :aria-label="t(showConfirmPassword ? 'auth.hidePassword' : 'auth.showPassword')"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <AppIcon :name="showConfirmPassword ? 'eye-off' : 'eye'" :size="18" />
+              </button>
+            </div>
             <span v-if="errors.confirmPassword" class="field-error">{{ errors.confirmPassword }}</span>
           </div>
 
@@ -48,7 +83,7 @@
           </button>
         </form>
 
-        <form v-else class="auth-modal__body" @submit.prevent="submitForgot" novalidate>
+        <form v-else-if="mode === 'forgot'" class="auth-modal__body" @submit.prevent="submitForgot" novalidate>
           <p class="auth-modal__hint">{{ t("auth.forgotHint") }}</p>
 
           <div class="form-group">
@@ -59,13 +94,66 @@
 
           <p v-if="forgotSubmitted" class="auth-modal__note">{{ t("auth.forgotConfirmation") }}</p>
 
-          <button type="submit" class="btn btn-primary btn-block">{{ t("auth.forgotSubmit") }}</button>
+          <button type="submit" class="btn btn-primary btn-block" :disabled="forgotSubmitting">
+            {{ t("auth.forgotSubmit") }}
+          </button>
         </form>
 
-        <button v-if="mode !== 'forgot'" type="button" class="auth-modal__switch" @click="switchMode">
+        <form v-else-if="mode === 'reset'" class="auth-modal__body" @submit.prevent="submitReset" novalidate>
+          <p v-if="formError" class="field-error auth-modal__form-error">{{ formError }}</p>
+          <p class="auth-modal__hint">{{ t("auth.resetHint") }}</p>
+
+          <div class="form-group">
+            <label for="auth-reset-password">{{ t("auth.resetNewPassword") }}</label>
+            <div class="password-field">
+              <input
+                id="auth-reset-password"
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                :aria-label="t(showPassword ? 'auth.hidePassword' : 'auth.showPassword')"
+                @click="showPassword = !showPassword"
+              >
+                <AppIcon :name="showPassword ? 'eye-off' : 'eye'" :size="18" />
+              </button>
+            </div>
+            <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="auth-reset-confirm">{{ t("auth.resetConfirmPassword") }}</label>
+            <div class="password-field">
+              <input
+                id="auth-reset-confirm"
+                v-model="form.confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                :aria-label="t(showConfirmPassword ? 'auth.hidePassword' : 'auth.showPassword')"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <AppIcon :name="showConfirmPassword ? 'eye-off' : 'eye'" :size="18" />
+              </button>
+            </div>
+            <span v-if="errors.confirmPassword" class="field-error">{{ errors.confirmPassword }}</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" :disabled="submitting">
+            {{ t("auth.resetSubmit") }}
+          </button>
+        </form>
+
+        <button v-if="mode === 'login' || mode === 'register'" type="button" class="auth-modal__switch" @click="switchMode">
           {{ mode === "login" ? t("auth.switchToRegister") : t("auth.switchToLogin") }}
         </button>
-        <button v-else type="button" class="auth-modal__switch" @click="backToLogin">
+        <button v-else-if="mode === 'forgot'" type="button" class="auth-modal__switch" @click="backToLogin">
           {{ t("auth.backToLogin") }}
         </button>
       </div>
@@ -77,12 +165,26 @@
 import AppIcon from "./AppIcon.vue";
 import { t } from "../i18n";
 import { login, register } from "../store/auth";
+import httpClient from "../services/httpClient";
 import { pushToast } from "../store/toast";
+import { isStrongPassword } from "../utils/passwordStrength";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function emptyForm() {
   return { name: "", email: "", password: "", confirmPassword: "" };
+}
+
+// Reads a field-specific validation message when the backend returns one
+// (ErrorResponse.errors, e.g. { password: "..." } from @StrongPassword),
+// falling back to the generic top-level message, then to a local fallback
+function extractErrorMessage(err, fallback) {
+  const data = err.response?.data;
+  if (data?.errors) {
+    const firstFieldError = Object.values(data.errors)[0];
+    if (firstFieldError) return firstFieldError;
+  }
+  return data?.message || fallback;
 }
 
 export default {
@@ -103,6 +205,10 @@ export default {
       type: String,
       default: "",
     },
+    resetToken: {
+      type: String,
+      default: "",
+    },
   },
 
   emits: ["close"],
@@ -114,9 +220,12 @@ export default {
       errors: {},
       formError: "",
       submitting: false,
+      showPassword: false,
+      showConfirmPassword: false,
       forgotEmail: "",
       forgotError: "",
       forgotSubmitted: false,
+      forgotSubmitting: false,
     };
   },
 
@@ -124,6 +233,7 @@ export default {
     modeTitle() {
       if (this.mode === "register") return t("auth.registerTitle");
       if (this.mode === "forgot") return t("auth.forgotTitle");
+      if (this.mode === "reset") return t("auth.resetTitle");
       return t("auth.loginTitle");
     },
   },
@@ -131,10 +241,13 @@ export default {
   watch: {
     open(value) {
       if (value) {
-        this.mode = this.initialMode === "register" ? "register" : "login";
+        this.mode =
+          this.initialMode === "register" ? "register" : this.initialMode === "reset" ? "reset" : "login";
         this.form = emptyForm();
         this.errors = {};
         this.formError = "";
+        this.showPassword = false;
+        this.showConfirmPassword = false;
         this.forgotEmail = "";
         this.forgotError = "";
         this.forgotSubmitted = false;
@@ -156,9 +269,7 @@ export default {
       this.forgotError = "";
     },
 
-    // The forgot-password flow here is intentionally UI-only and isolated (no
-    // real reset token or actual email) so it's easy to replace later with a Spring Boot service
-    submitForgot() {
+    async submitForgot() {
       const email = this.forgotEmail.trim();
 
       if (!email) {
@@ -171,7 +282,59 @@ export default {
       }
 
       this.forgotError = "";
-      this.forgotSubmitted = true;
+      this.forgotSubmitting = true;
+      try {
+        // The backend never reveals whether the email is registered (anti-enumeration);
+        // it always returns the same generic success response, so there is no
+        // "email not found" case to distinguish here by design.
+        await httpClient.post("/api/users/forgot-password", { email });
+        this.forgotSubmitted = true;
+      } catch (err) {
+        this.forgotError = extractErrorMessage(err, t("auth.errors.forgotSendFailed"));
+      } finally {
+        this.forgotSubmitting = false;
+      }
+    },
+
+    async submitReset() {
+      const errors = {};
+
+      if (!this.form.password) {
+        errors.password = t("auth.errors.required");
+      } else if (!isStrongPassword(this.form.password)) {
+        errors.password = t("account.password.errorWeak");
+      }
+
+      if (!this.form.confirmPassword) {
+        errors.confirmPassword = t("auth.errors.required");
+      } else if (this.form.password && this.form.confirmPassword !== this.form.password) {
+        errors.confirmPassword = t("auth.errors.passwordMismatch");
+      }
+
+      this.errors = errors;
+      if (Object.keys(errors).length > 0) return;
+
+      this.formError = "";
+      this.submitting = true;
+      try {
+        await httpClient.post("/api/users/reset-password", {
+          token: this.resetToken,
+          newPassword: this.form.password,
+          confirmPassword: this.form.confirmPassword,
+        });
+        pushToast(t("auth.resetSuccess"), "success");
+        this.mode = "login";
+        this.form = emptyForm();
+        this.errors = {};
+      } catch (err) {
+        const status = err.response?.status;
+        this.formError =
+          status === 401
+            ? extractErrorMessage(err, t("auth.errors.resetTokenInvalid"))
+            : extractErrorMessage(err, t("auth.errors.resetFailed"));
+      } finally {
+        this.submitting = false;
+      }
     },
 
     validate() {
@@ -189,8 +352,8 @@ export default {
 
       if (!this.form.password) {
         errors.password = t("auth.errors.required");
-      } else if (this.form.password.length < 6) {
-        errors.password = t("auth.errors.passwordLength");
+      } else if (this.mode === "register" && !isStrongPassword(this.form.password)) {
+        errors.password = t("account.password.errorWeak");
       }
 
       if (this.mode === "register") {
@@ -223,18 +386,17 @@ export default {
         }
       } catch (err) {
         const status = err.response?.status;
-        const backendMessage = err.response?.data?.message;
 
         if (this.mode === "login") {
           if (status === 403) {
             this.formError = t("auth.errors.emailNotVerified");
           } else if (status === 401) {
-            this.formError = backendMessage || t("auth.errors.invalidCredentials");
+            this.formError = extractErrorMessage(err, t("auth.errors.invalidCredentials"));
           } else {
-            this.formError = backendMessage || t("auth.errors.loginFailed");
+            this.formError = extractErrorMessage(err, t("auth.errors.loginFailed"));
           }
         } else {
-          this.formError = backendMessage || t("auth.errors.registerFailed");
+          this.formError = extractErrorMessage(err, t("auth.errors.registerFailed"));
         }
       } finally {
         this.submitting = false;
@@ -336,5 +498,42 @@ export default {
 
 .auth-modal__switch:hover {
   text-decoration: underline;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  width: 100%;
+  padding-inline-end: 42px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  inset-inline-end: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
 }
 </style>

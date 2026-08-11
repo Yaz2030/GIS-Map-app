@@ -178,10 +178,7 @@ import { t } from "../i18n";
 import httpClient from "../services/httpClient";
 import { pushToast } from "../store/toast";
 import { authState, updateUserName, logout } from "../store/auth";
-
-// Same password strength rule enforced by the backend (StrongPasswordValidator):
-// at least 8 characters, one uppercase, one lowercase, and a special character from @ # $ % ! *
-const STRONG_PASSWORD_RE = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%!&*]).{8,}$/;
+import { isStrongPassword } from "../utils/passwordStrength";
 
 export default {
   name: "AccountSettingsPanel",
@@ -283,7 +280,7 @@ export default {
 
       if (!this.newPassword) {
         errors.newPassword = t("auth.errors.required");
-      } else if (!STRONG_PASSWORD_RE.test(this.newPassword)) {
+      } else if (!isStrongPassword(this.newPassword)) {
         errors.newPassword = t("account.password.errorWeak");
       }
 

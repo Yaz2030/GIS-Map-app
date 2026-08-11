@@ -75,7 +75,8 @@
 
 <script>
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+// leaflet/dist/leaflet.css is imported in main.js (must load before
+// style.css so our popup overrides win the cascade — see the comment there)
 
 import MapSidebar from "./MapSidebar.vue";
 import SearchPanel from "./SearchPanel.vue";

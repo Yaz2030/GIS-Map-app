@@ -15,7 +15,13 @@
     @account-deleted="handleAccountDeleted"
   />
 
-  <AuthModal :open="showAuthModal" :initial-mode="authModalMode" :note="authModalNote" @close="showAuthModal = false" />
+  <AuthModal
+    :open="showAuthModal"
+    :initial-mode="authModalMode"
+    :note="authModalNote"
+    :reset-token="resetPasswordToken"
+    @close="showAuthModal = false"
+  />
 
   <LandingPage v-if="showLanding" @get-started="landingDismissed = true" />
 
@@ -52,6 +58,7 @@ export default {
       showAuthModal: false,
       authModalMode: "login",
       authModalNote: "",
+      resetPasswordToken: "",
       // Hidden for this session only (not localStorage); reverts to true
       // automatically after any reload as long as the user is still a guest, not logged in
       landingDismissed: false,
@@ -67,6 +74,18 @@ export default {
   mounted() {
     document.addEventListener("keydown", this.handleKeydown);
     checkEmailVerification({ onVerified: () => this.openAuth("login") });
+
+    // Handles the reset-password email link (/reset-password?token=...): opens
+    // AuthModal directly in "reset" mode with the token, then cleans the URL
+    // immediately (same pattern as useEmailVerification.js) so a refresh doesn't reuse it
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (window.location.pathname === "/reset-password" && token) {
+      this.resetPasswordToken = token;
+      this.authModalMode = "reset";
+      this.showAuthModal = true;
+      window.history.replaceState({}, "", "/");
+    }
   },
 
   beforeUnmount() {
